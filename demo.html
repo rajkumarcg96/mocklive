@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>फ्री डेमो टेस्ट - ज्ञान कम्प्यूटर</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* CSS बिल्कुल मुख्य एग्जाम जैसी है */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f0f2f5; color: #333; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+        .header { background-color: #f0ad4e; color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10; }
+        .header-left h2 { font-size: 20px; margin: 0; display: flex; align-items: center; gap: 8px; color: #2c3e50;}
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .timer { background: #d32f2f; color: white; padding: 5px 15px; border-radius: 5px; font-size: 18px; font-weight: bold; letter-spacing: 1px; }
+        
+        .main-container { display: flex; flex: 1; height: calc(100vh - 50px); }
+        .left-panel { flex: 3; display: flex; flex-direction: column; border-right: 1px solid #ccc; background: white; position: relative; }
+        
+        .question-header { padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; color: #1a73e8; }
+        .question-body { padding: 30px; flex: 1; overflow-y: auto; font-size: 16px; line-height: 1.6; }
+        .question-text { margin-bottom: 25px; font-weight: 600; font-size: 18px; color: #202124; }
+        
+        .option-container { margin-bottom: 15px; display: flex; align-items: center; padding: 10px 15px; border: 1px solid #dadce0; border-radius: 5px; cursor: pointer; transition: 0.2s; }
+        .option-container:hover { background-color: #f8f9fa; }
+        .option-container input[type="radio"] { margin-right: 15px; transform: scale(1.3); cursor: pointer; }
+
+        .action-buttons { padding: 15px 20px; background: #f8f9fa; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .btn { padding: 10px 20px; border: none; border-radius: 4px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; color: white; }
+        .btn-review { background-color: #f0ad4e; color: #fff; }
+        .btn-clear { background-color: #fff; color: #333; border: 1px solid #ccc; }
+        .btn-prev { background-color: #6c757d; }
+        .btn-next { background-color: #1a73e8; }
+        .btn:hover { opacity: 0.9; }
+
+        .right-panel { flex: 1; background: #fff; display: flex; flex-direction: column; min-width: 250px; max-width: 300px; }
+        .user-profile { padding: 15px; background: #fffdf8; border-bottom: 1px solid #ccc; text-align: center; }
+        .user-icon { width: 60px; height: 60px; background: #f0ad4e; color: white; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-size: 30px; margin-bottom: 10px; }
+        .user-name { font-weight: bold; font-size: 16px; color: #202124; }
+
+        .legend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; font-size: 12px; border-bottom: 1px solid #eee; }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .badge { width: 25px; height: 25px; border-radius: 4px; display: inline-flex; justify-content: center; align-items: center; color: white; font-weight: bold; font-size: 12px; border: 1px solid #ccc; }
+        .bg-answered { background-color: #2e7d32; border-color: #2e7d32; color: white; } 
+        .bg-not-answered { background-color: #d32f2f; border-color: #d32f2f; color: white; } 
+        .bg-not-visited { background-color: #f1f3f4; color: #333; } 
+        .bg-review { background-color: #673ab7; border-color: #673ab7; color: white; } 
+
+        .palette-container { padding: 15px; flex: 1; overflow-y: auto; }
+        .palette-title { font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        .question-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .q-btn { width: 100%; aspect-ratio: 1; border-radius: 4px; border: 1px solid #ccc; cursor: pointer; font-weight: bold; display: flex; justify-content: center; align-items: center; font-size: 14px; transition: 0.2s; }
+        .q-btn:hover { opacity: 0.8; transform: scale(1.05); }
+
+        .submit-section { padding: 15px; background: #f8f9fa; border-top: 1px solid #ccc; text-align: center; }
+        .btn-submit { background-color: #28a745; width: 100%; padding: 12px; font-size: 16px; border-radius: 5px; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+
+        .overlay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f0f2f5; z-index: 1500; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        .loader-overlay { background: rgba(255,255,255,0.95); z-index: 2000; }
+        .spinner { width: 60px; height: 60px; border: 5px solid #f3f3f3; border-top: 5px solid #1a73e8; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .score-box { background: #1a73e8; color: white; width: 150px; height: 150px; border-radius: 50%; display: flex; justify-content: center; align-items: center; flex-direction: column; font-size: 40px; font-weight: bold; margin: 20px; box-shadow: 0 10px 20px rgba(26, 115, 232, 0.4); }
+        .score-box span { font-size: 16px; font-weight: normal; }
+
+        .lang-box { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 100%; border-top: 5px solid #f0ad4e; }
+        .lang-select { width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e0e0e0; font-size: 16px; margin-bottom: 25px; outline: none; }
+        
+        .btn-buy { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; border-radius: 30px; text-decoration: none; font-weight: bold; font-size: 18px; margin-top: 20px; display: inline-block; box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4); transition: 0.3s; }
+        .btn-buy:hover { transform: translateY(-3px); opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+    <div class="overlay-screen" id="languageScreen">
+        <div class="lang-box">
+            <i class="fas fa-laptop-code" style="font-size: 50px; color: #f0ad4e; margin-bottom: 10px;"></i>
+            <h2 style="color: #2c3e50; margin-bottom: 5px;">फ्री डेमो टेस्ट</h2>
+            <p style="color: #5f6368; margin-bottom: 20px;">20 प्रश्न | 20 मिनट</p>
+            
+            <select id="examLanguage" class="lang-select">
+                <option value="Hindi">हिंदी (Hindi)</option>
+                <option value="English">English</option>
+            </select>
+            
+            <button onclick="startDemoTest()" class="btn-submit" style="width: 100%; background: #f0ad4e;"><i class="fas fa-play"></i> डेमो शुरू करें</button>
+            
+            <p style="margin-top: 20px; font-size: 14px;"><a href="registration.html" style="color: #1a73e8; text-decoration: none; font-weight: bold;">पूरा पैकेज खरीदें</a></p>
+        </div>
+    </div>
+
+    <div class="overlay-screen loader-overlay" id="loader" style="display: none;">
+        <div class="spinner"></div>
+        <h2 style="color: #1a73e8;">डेमो प्रश्न लोड हो रहे हैं...</h2>
+    </div>
+
+    <div class="overlay-screen loader-overlay" id="resultScreen" style="display: none;">
+        <i class="fas fa-medal" style="font-size: 60px; color: #f0ad4e; margin-bottom: 15px;"></i>
+        <h1 style="color: #202124;">डेमो टेस्ट समाप्त!</h1>
+        <div class="score-box">
+            <div id="finalScore">0</div>
+            <span>प्राप्त अंक</span>
+        </div>
+        <h3 style="color: #555; margin-top: 15px; font-size: 18px; max-width: 500px; text-align: center; line-height: 1.5;">
+            यह केवल एक डेमो था। पूरी तैयारी और सर्टिफिकेट के लिए हमारा असली मॉक टेस्ट पैकेज खरीदें।
+        </h3>
+        
+        <a href="registration.html" class="btn-buy"><i class="fas fa-lock"></i> फुल पैकेज खरीदें (Register Now)</a>
+        
+        <div style="margin-top: 20px;">
+            <button onclick="location.reload();" class="btn btn-review" style="background: #6c757d;"><i class="fas fa-redo"></i> दोबारा डेमो दें</button>
+        </div>
+    </div>
+
+    <div id="examInterface" style="display: none; flex-direction: column; height: 100%;">
+        <div class="header">
+            <div class="header-left">
+                <h2><i class="fas fa-laptop-code"></i> फ्री डेमो - आधार (UIDAI) टेस्ट</h2>
+            </div>
+            <div class="header-right">
+                <div class="timer" id="timerBox"><i class="fas fa-clock"></i> Time Left: <span id="time">20:00</span></div>
+            </div>
+        </div>
+
+        <div class="main-container">
+            <div class="left-panel">
+                <div class="question-header">
+                    <span id="qHeaderNo">Question No. 1</span>
+                    <span style="color: #6c757d; font-size: 14px;"><i class="fas fa-info-circle"></i> Demo Test</span>
+                </div>
+                
+                <div class="question-body">
+                    <div class="question-text" id="qText">लोड हो रहा है...</div>
+                    <div id="optionsContainer"></div>
+                </div>
+
+                <div class="action-buttons">
+                    <div>
+                        <button class="btn btn-review" onclick="markForReview()">Mark for Review</button>
+                        <button class="btn btn-clear" onclick="clearResponse()">Clear Response</button>
+                    </div>
+                    <div>
+                        <button class="btn btn-prev" onclick="prevQuestion()"><i class="fas fa-chevron-left"></i> Previous</button>
+                        <button class="btn btn-next" onclick="saveAndNext()">Save & Next <i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="user-profile">
+                    <div class="user-icon"><i class="fas fa-user-graduate"></i></div>
+                    <div class="user-name">Guest User</div>
+                    <div style="font-size: 12px; color: #f0ad4e; font-weight: bold;">Demo Account</div>
+                </div>
+
+                <div class="legend-grid">
+                    <div class="legend-item"><div class="badge bg-answered" id="cntAnswered">0</div> Answered</div>
+                    <div class="legend-item"><div class="badge bg-not-answered" id="cntNotAnswered">0</div> Not Answered</div>
+                    <div class="legend-item"><div class="badge bg-not-visited" id="cntNotVisited">0</div> Not Visited</div>
+                    <div class="legend-item"><div class="badge bg-review" id="cntReview">0</div> Review</div>
+                </div>
+
+                <div class="palette-container">
+                    <div class="palette-title">Question Palette (20 Qs):</div>
+                    <div class="question-grid" id="paletteGrid"></div>
+                </div>
+
+                <div class="submit-section">
+                    <button class="btn btn-submit" onclick="confirmSubmit()"><i class="fas fa-paper-plane"></i> Submit Demo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 👇 आपका Web App URL 👇
+        const googleScriptURL = "https://script.google.com/macros/s/AKfycbxuUL6GRkOTyB6s6a4c5aYf-qybA8plvMXIismC-5Du0onqFbPXLb3__qJjwrvN-sM_GQ/exec";
+
+        let questions = []; 
+        let currentQuestion = 0;
+        let qStatus = []; 
+        let userAnswers = []; 
+        let timerInterval;
+
+        function startDemoTest() {
+            const selectedLang = document.getElementById("examLanguage").value;
+            
+            document.getElementById("languageScreen").style.display = "none";
+            document.getElementById("loader").style.display = "flex";
+
+            // URL में &isDemo=true लगा है ताकि केवल 20 प्रश्न आएँ
+            fetch(googleScriptURL + "?action=getQuestions&lang=" + selectedLang + "&isDemo=true&t=" + new Date().getTime())
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === "success" && data.data.length > 0) {
+                    questions = data.data; // 20 questions
+                    qStatus = new Array(questions.length).fill(0); 
+                    userAnswers = new Array(questions.length).fill(null); 
+                    
+                    document.getElementById("loader").style.display = "none";
+                    document.getElementById("examInterface").style.display = "flex";
+                    
+                    initExam();
+                    startTimer();
+                } else {
+                    document.getElementById("loader").style.display = "none";
+                    document.getElementById("languageScreen").style.display = "flex";
+                    alert("प्रश्न लोड नहीं हो सके। कृपया एडमिन से संपर्क करें।");
+                }
+            })
+            .catch(err => {
+                alert("इंटरनेट समस्या! प्रश्न लोड नहीं हो सके।");
+                document.getElementById("loader").style.display = "none";
+                document.getElementById("languageScreen").style.display = "flex";
+            });
+        }
+
+        function initExam() {
+            if(questions.length === 0) return;
+            generatePalette();
+            qStatus[0] = 1; 
+            showQuestion(0);
+            updatePaletteColors();
+        }
+
+        function generatePalette() {
+            const grid = document.getElementById("paletteGrid");
+            grid.innerHTML = "";
+            for (let i = 0; i < questions.length; i++) {
+                grid.innerHTML += `<button class="q-btn bg-not-visited" id="btnQ${i}" onclick="jumpToQuestion(${i})">${i + 1}</button>`;
+            }
+        }
+
+        function showQuestion(index) {
+            currentQuestion = index;
+            document.getElementById("qHeaderNo").innerText = `Question No. ${index + 1} / 20`;
+            document.getElementById("qText").innerText = `${index + 1}. ` + questions[index].question;
+            
+            const optContainer = document.getElementById("optionsContainer");
+            optContainer.innerHTML = "";
+            
+            questions[index].options.forEach((opt, i) => {
+                let isChecked = (userAnswers[index] === i) ? "checked" : "";
+                optContainer.innerHTML += `
+                    <label class="option-container">
+                        <input type="radio" name="qOption" value="${i}" ${isChecked} onchange="selectOption(${index}, ${i})"> ${opt}
+                    </label>
+                `;
+            });
+
+            if(qStatus[index] === 0) { qStatus[index] = 1; }
+            updatePaletteColors();
+        }
+
+        function selectOption(qIndex, optIndex) { userAnswers[qIndex] = optIndex; }
+
+        window.saveAndNext = function() {
+            if(userAnswers[currentQuestion] !== null) { qStatus[currentQuestion] = 2; } 
+            else { qStatus[currentQuestion] = 1; }
+            if (currentQuestion < questions.length - 1) { showQuestion(currentQuestion + 1); } 
+            else { updatePaletteColors(); }
+        }
+
+        window.markForReview = function() {
+            qStatus[currentQuestion] = 3; 
+            if (currentQuestion < questions.length - 1) { showQuestion(currentQuestion + 1); } 
+            else { updatePaletteColors(); }
+        }
+
+        window.clearResponse = function() {
+            userAnswers[currentQuestion] = null;
+            qStatus[currentQuestion] = 1; 
+            showQuestion(currentQuestion); 
+        }
+
+        window.prevQuestion = function() {
+            if (currentQuestion > 0) { showQuestion(currentQuestion - 1); }
+        }
+
+        window.jumpToQuestion = function(index) {
+            if(userAnswers[currentQuestion] !== null && qStatus[currentQuestion] !== 3) { qStatus[currentQuestion] = 2; } 
+            else if (qStatus[currentQuestion] !== 3) { qStatus[currentQuestion] = 1; }
+            showQuestion(index);
+        }
+
+        function updatePaletteColors() {
+            let answered = 0, notAnswered = 0, notVisited = 0, review = 0;
+            for (let i = 0; i < questions.length; i++) {
+                let btn = document.getElementById(`btnQ${i}`);
+                if (!btn) continue;
+                btn.className = "q-btn"; 
+                if (i === currentQuestion) { btn.style.border = "3px solid #000"; } 
+                else { btn.style.border = "1px solid #ccc"; }
+
+                if (qStatus[i] === 0) { btn.classList.add("bg-not-visited"); notVisited++; }
+                else if (qStatus[i] === 1) { btn.classList.add("bg-not-answered"); notAnswered++; }
+                else if (qStatus[i] === 2) { btn.classList.add("bg-answered"); answered++; }
+                else if (qStatus[i] === 3) { btn.classList.add("bg-review"); review++; }
+            }
+            document.getElementById("cntAnswered").innerText = answered;
+            document.getElementById("cntNotAnswered").innerText = notAnswered;
+            document.getElementById("cntNotVisited").innerText = notVisited;
+            document.getElementById("cntReview").innerText = review;
+        }
+
+        // --- Demo Timer: 20 Minutes ---
+        let totalSeconds = 20 * 60; 
+        let timerBox = document.getElementById("timerBox");
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                let minutes = Math.floor(totalSeconds / 60);
+                let seconds = totalSeconds % 60;
+                document.getElementById("time").innerText = `${minutes < 10 ? '0'+minutes : minutes}:${seconds < 10 ? '0'+seconds : seconds}`;
+
+                if(totalSeconds <= 120) { timerBox.style.background = "#c0392b"; } // Last 2 mins red
+                if(totalSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    alert("समय समाप्त! आपका डेमो टेस्ट सबमिट हो रहा है।");
+                    processResult();
+                }
+                totalSeconds--;
+            }, 1000);
+        }
+
+        window.confirmSubmit = function() {
+            if(confirm("क्या आप वाकई डेमो टेस्ट सबमिट करना चाहते हैं?")) { processResult(); }
+        }
+
+        // --- Submit Result Local (No Google Sheet Save) ---
+        function processResult() {
+            clearInterval(timerInterval);
+            let score = 0;
+            for (let i = 0; i < questions.length; i++) {
+                if (userAnswers[i] !== null && userAnswers[i] === questions[i].answer) { score++; }
+            }
+
+            document.getElementById("examInterface").style.display = "none";
+            document.getElementById("resultScreen").style.display = "flex";
+            document.getElementById("finalScore").innerText = score + " / 20";
+        }
+    </script>
+</body>
+</html>

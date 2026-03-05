@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>नियम व शर्तें - ज्ञान कम्प्यूटर (आधार मॉक टेस्ट)</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', 'Segoe UI', Tahoma, sans-serif; }
+        body { background-color: #f8f9fa; color: #333; line-height: 1.6; }
+
+        /* --- नेविगेशन बार --- */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+            padding: 15px 50px; display: flex; justify-content: space-between; align-items: center;
+            position: fixed; top: 0; width: 100%; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .logo { font-size: 24px; font-weight: 800; color: #1a73e8; display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .logo i { color: #f0ad4e; font-size: 28px; }
+        .nav-links { display: flex; gap: 30px; align-items: center; }
+        .nav-links a { text-decoration: none; color: #2c3e50; font-weight: 600; transition: 0.3s; }
+        .nav-links a:hover { color: #1a73e8; }
+        .btn-login { background: #e8f0fe; color: #1a73e8 !important; padding: 8px 20px; border-radius: 25px; font-weight: bold; border: 2px solid transparent; transition: 0.3s; }
+
+        /* --- हेडर सेक्शन --- */
+        .page-header {
+            background: linear-gradient(135deg, #1a73e8 0%, #764ba2 100%);
+            color: white; padding: 120px 20px 60px; text-align: center;
+        }
+        .page-header h1 { font-size: 36px; margin-bottom: 10px; font-weight: 800; }
+        .page-header p { font-size: 18px; color: #e8f0fe; }
+
+        /* --- नियम कंटेंट --- */
+        .content-section { padding: 50px 20px; display: flex; justify-content: center; }
+        .rules-container {
+            background: white; max-width: 900px; width: 100%; padding: 40px;
+            border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border-top: 5px solid #1a73e8;
+        }
+
+        .rules-title { color: #2c3e50; font-size: 24px; margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .rules-title i { color: #d32f2f; }
+
+        .rules-list { list-style: none; counter-reset: custom-counter; }
+        .rules-list li {
+            position: relative; padding-left: 45px; margin-bottom: 20px; font-size: 16px; color: #444;
+            background: #f8f9fa; padding-top: 15px; padding-bottom: 15px; padding-right: 20px; border-radius: 8px; border-left: 4px solid #1a73e8;
+        }
+        .rules-list li::before {
+            counter-increment: custom-counter; content: counter(custom-counter);
+            position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+            background: #1a73e8; color: white; width: 25px; height: 25px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: bold;
+        }
+
+        .highlight-rule { border-left-color: #d32f2f !important; background: #fff5f5 !important; }
+        .highlight-rule::before { background: #d32f2f !important; }
+
+        /* --- फीस बॉक्स --- */
+        .fee-box {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); margin-top: 40px;
+            padding: 30px; border-radius: 15px; text-align: center; color: #fff; box-shadow: 0 10px 20px rgba(253, 160, 133, 0.3);
+        }
+        .fee-box h3 { font-size: 24px; margin-bottom: 15px; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
+        .fee-grid { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; }
+        .fee-item { background: rgba(255,255,255,0.2); padding: 15px 30px; border-radius: 10px; font-size: 18px; font-weight: bold; border: 1px solid rgba(255,255,255,0.3); }
+
+        .action-buttons { text-align: center; margin-top: 40px; }
+        .btn-reg { background: #1a73e8; color: white; padding: 15px 30px; text-decoration: none; border-radius: 30px; font-weight: bold; font-size: 18px; transition: 0.3s; display: inline-block; box-shadow: 0 5px 15px rgba(26, 115, 232, 0.4); }
+        .btn-reg:hover { background: #1557b0; transform: translateY(-2px); }
+
+        /* --- मोबाइल रेस्पॉन्सिव --- */
+        @media (max-width: 768px) {
+            .navbar { padding: 15px 20px; }
+            .rules-container { padding: 20px; }
+            .rules-list li { font-size: 14px; padding-left: 40px; }
+            .fee-grid { flex-direction: column; gap: 15px; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="logo"><i class="fas fa-laptop-code"></i> ज्ञान कम्प्यूटर</a>
+        <div class="nav-links">
+            <a href="index.html">होम</a>
+            <a href="registration.html">रजिस्ट्रेशन</a>
+            <a href="login.html" class="btn-login"><i class="fas fa-sign-in-alt"></i> पोर्टल लॉगिन</a>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <h1>नियम व शर्तें</h1>
+        <p>मॉक टेस्ट (NSEIT) सब्सक्रिप्शन प्लान के नियम एवं दिशा-निर्देश</p>
+    </div>
+
+    <section class="content-section">
+        <div class="rules-container">
+            <h2 class="rules-title"><i class="fas fa-balance-scale"></i> मॉक टेस्ट सब्सक्रिप्शन के नियम</h2>
+            
+            <ul class="rules-list">
+                <li>कैंडिडेट को सबसे पहले अपना ऑनलाइन रजिस्ट्रेशन कराना और अपनी सुविधा अनुसार सब्सक्रिप्शन पैकेज (साप्ताहिक या मासिक) चुनना अनिवार्य होगा।</li>
+                <li>सफलतापूर्वक रजिस्ट्रेशन और फीस भुगतान के पश्चात कैंडिडेट के रजिस्टर्ड ईमेल और मोबाइल नंबर पर पोर्टल की लॉगिन आईडी व पासवर्ड भेज दिया जाएगा।</li>
+                <li class="highlight-rule"><b>असीमित प्रयास (Unlimited Attempts):</b> आपके सब्सक्रिप्शन प्लान (7 दिन या 30 दिन) की वैलिडिटी रहने तक आप पोर्टल पर लॉगिन करके <b>जितनी बार चाहें उतनी बार</b> मॉक टेस्ट देकर अपनी प्रैक्टिस कर सकते हैं।</li>
+                <li class="highlight-rule"><b>ऑटो-एक्सपायर (Auto-Expire):</b> आपके द्वारा चुने गए प्लान की समयसीमा पूरी होते ही (7 दिन या 30 दिन बाद), आपकी लॉगिन आईडी अपने आप एक्सपायर (निष्क्रीय) हो जाएगी। आगे प्रैक्टिस जारी रखने के लिए आपको पुनः रजिस्ट्रेशन करना होगा।</li>
+                <li>मॉक टेस्ट में प्रश्नों की संख्या UIDAI के नवीनतम सिलेबस (ऑपरेटर/सुपरवाइजर) के अनुसार निर्धारित रहेगी। हर बार टेस्ट देने पर आपको अभ्यास के लिए नए प्रश्न मिल सकते हैं।</li>
+                <li>टेस्ट देते समय इंटरनेट कनेक्शन सही रखें। यदि किसी कारणवश बीच में टेस्ट कट जाता है, तो आप अपनी आईडी से दोबारा लॉगिन करके एक नया टेस्ट शुरू कर सकते हैं।</li>
+                <li>मुख्य आधार परीक्षा की तरह ही इस मॉक टेस्ट में किसी भी प्रकार की <b>माइनस मार्किंग (Negative Marking) नहीं</b> रहेगी।</li>
+                <li>प्रत्येक मॉक टेस्ट को हल करने के लिए कुल 110 मिनट का समय दिया जाएगा। स्क्रीन पर लाइव टाइमर चलता रहेगा।</li>
+                <li>110 मिनट का समय पूरा होते ही परीक्षा पोर्टल द्वारा आपका पेपर <b>ऑटो-सबमिट (Auto-Submit)</b> कर दिया जाएगा।</li>
+                <li>पेपर सबमिट होते ही कैंडिडेट अपना फाइनल रिजल्ट (प्राप्त अंक) तुरंत अपनी स्क्रीन पर देख सकेंगे।</li>
+                <li>रिजल्ट में आपके प्रतिशत के आधार पर आपको तुरंत बता दिया जाएगा कि मुख्य परीक्षा के अनुसार आप <b>'सुपरवाइजर'</b>, <b>'ऑपरेटर'</b> के लिए पास हुए हैं या <b>'फेल'</b> हुए हैं।</li>
+            </ul>
+
+            <div class="fee-box">
+                <h3>मॉक टेस्ट सब्सक्रिप्शन पैकेज</h3>
+                <div class="fee-grid">
+                    <div class="fee-item">
+                        <i class="fas fa-calendar-week"></i> साप्ताहिक पैकेज (7 दिन): <b>मात्र ₹100</b>
+                    </div>
+                    <div class="fee-item">
+                        <i class="fas fa-calendar-alt"></i> मासिक पैकेज (30 दिन): <b>मात्र ₹299</b>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <a href="registration.html" class="btn-reg">मैं सहमत हूँ, रजिस्ट्रेशन करें <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </section>
+
+</body>
+</html>

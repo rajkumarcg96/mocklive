@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSEIT आधार मॉक टेस्ट 2026 - ज्ञान कम्प्यूटर</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* --- बेसिक रीसेट और फॉन्ट --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', 'Segoe UI', Tahoma, sans-serif; }
+        html { scroll-behavior: smooth; }
+        body { background-color: #f8f9fa; color: #333; overflow-x: hidden; }
+
+        /* --- नेविगेशन बार --- */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+            padding: 15px 50px; display: flex; justify-content: space-between; align-items: center;
+            position: fixed; top: 0; width: 100%; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .logo { font-size: 24px; font-weight: 800; color: #1a73e8; display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .logo i { color: #f0ad4e; font-size: 28px; }
+        
+        .nav-links { display: flex; gap: 30px; align-items: center; }
+        .nav-links a { text-decoration: none; color: #2c3e50; font-weight: 600; transition: 0.3s; }
+        .nav-links a:hover { color: #1a73e8; }
+        
+        .btn-login { background: #e8f0fe; color: #1a73e8 !important; padding: 8px 20px; border-radius: 25px; font-weight: bold; border: 2px solid transparent; transition: 0.3s; }
+        .btn-login:hover { background: #1a73e8; color: white !important; }
+
+        /* --- हीरो सेक्शन --- */
+        .hero {
+            padding: 150px 50px 100px; display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(135deg, #ebf4f5 0%, #b5c6e0 100%); min-height: 100vh;
+        }
+        .hero-text { flex: 1; padding-right: 50px; animation: slideInLeft 1s ease-out; }
+        .badge { background: #d32f2f; color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3); }
+        
+        .hero-text h1 { font-size: 44px; color: #2c3e50; line-height: 1.2; margin-bottom: 15px; font-weight: 800; }
+        .hero-text h1 span { color: #1a73e8; }
+        .hero-text p { font-size: 18px; color: #444; margin-bottom: 30px; line-height: 1.6; }
+        .highlight-text { background: #fff3cd; padding: 5px 10px; border-radius: 5px; font-weight: bold; color: #856404; }
+        
+        .hero-buttons { display: flex; gap: 20px; flex-wrap: wrap; }
+        .btn-primary { background: #1a73e8; color: white; padding: 15px 30px; border-radius: 30px; text-decoration: none; font-size: 18px; font-weight: bold; box-shadow: 0 10px 20px rgba(26, 115, 232, 0.3); transition: 0.3s; display: inline-flex; align-items: center; gap: 10px; }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(26, 115, 232, 0.4); }
+        .btn-secondary { background: white; color: #1a73e8; padding: 15px 30px; border-radius: 30px; text-decoration: none; font-size: 18px; font-weight: bold; box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: 0.3s; }
+        .btn-secondary:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(0,0,0,0.1); }
+
+        .hero-image { flex: 1; text-align: right; animation: fadeIn 1.5s ease-out; }
+        .hero-image div { background: linear-gradient(135deg, #667eea, #764ba2); width: 100%; max-width: 500px; height: 400px; border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; display: inline-flex; justify-content: center; align-items: center; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+        .hero-image i { font-size: 150px; color: white; }
+
+        /* --- फीचर्स/प्राइज सेक्शन --- */
+        .prizes-section { padding: 80px 50px; background: #fff; text-align: center; }
+        .section-title { font-size: 36px; color: #2c3e50; margin-bottom: 15px; font-weight: 800; }
+        .section-subtitle { color: #667eea; font-weight: 600; margin-bottom: 50px; font-size: 18px; }
+        
+        .prizes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 40px; }
+        .prize-card { padding: 40px 20px; border-radius: 20px; position: relative; transition: 0.3s; color: white; overflow: hidden; z-index: 1; }
+        .prize-card:hover { transform: translateY(-10px); }
+        
+        .prize-1 { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); box-shadow: 0 20px 40px rgba(253, 160, 133, 0.4); transform: scale(1.05); }
+        .prize-2 { background: linear-gradient(135deg, #e2e2e2 0%, #9ca2b1 100%); box-shadow: 0 20px 40px rgba(156, 162, 177, 0.4); }
+        .prize-3 { background: linear-gradient(135deg, #ffb199 0%, #ff0844 100%); box-shadow: 0 20px 40px rgba(255, 8, 68, 0.3); }
+
+        .prize-icon { font-size: 60px; margin-bottom: 20px; text-shadow: 2px 4px 10px rgba(0,0,0,0.2); }
+        .prize-title { font-size: 28px; font-weight: bold; margin-bottom: 15px; }
+        .prize-amount { font-size: 40px; font-weight: 900; margin-bottom: 20px; text-shadow: 1px 2px 5px rgba(0,0,0,0.2); }
+        .prize-items { font-size: 16px; font-weight: 600; line-height: 1.8; }
+        .prize-items i { margin-right: 8px; }
+
+        /* --- परीक्षा की प्रक्रिया --- */
+        .steps-section { padding: 80px 50px; background: #f8f9fa; text-align: center; }
+        .steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; margin-top: 40px; }
+        .step-card { padding: 30px 20px; background: white; border-radius: 15px; transition: 0.3s; border: 1px solid #eee; }
+        .step-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
+        .step-icon { width: 70px; height: 70px; background: #e8f0fe; color: #1a73e8; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; margin: 0 auto 20px; }
+        .step-card h3 { font-size: 20px; color: #2c3e50; margin-bottom: 10px; }
+        .step-card p { color: #5f6368; font-size: 14px; line-height: 1.6; }
+
+        /* --- फुटर --- */
+        .footer { background: #1a252f; color: #ecf0f1; padding: 50px 50px 20px; text-align: center; }
+        .footer-content { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 30px; margin-bottom: 40px; text-align: left; }
+        .footer-col h3 { color: white; margin-bottom: 20px; font-size: 20px; }
+        .footer-col p { color: #bdc3c7; margin-bottom: 10px; }
+        .footer-col a { color: #bdc3c7; text-decoration: none; transition: 0.3s; display: block; margin-bottom: 10px; }
+        .footer-col a:hover { color: #f0ad4e; }
+        .copyright { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; color: #7f8c8d; font-size: 14px; }
+
+        /* --- एनिमेशन --- */
+        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-50px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+        /* --- मोबाइल रेस्पॉन्सिव --- */
+        @media (max-width: 900px) {
+            .navbar { padding: 15px 20px; }
+            .hero { flex-direction: column; padding: 120px 20px 50px; text-align: center; }
+            .hero-text { padding-right: 0; margin-bottom: 50px; }
+            .hero-buttons { justify-content: center; flex-wrap: wrap; }
+            .prizes-grid, .steps-grid { grid-template-columns: 1fr; }
+            .prize-1 { transform: scale(1); }
+            .hero-image div { width: 300px; height: 300px; }
+        }
+
+        /* --- फ्री डेमो बटन इफ़ेक्ट --- */
+        .btn-demo-pulse {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 18px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 20px rgba(255, 65, 108, 0.4);
+            animation: pulse-animation 2s infinite;
+            transition: 0.3s;
+        }
+        .btn-demo-pulse:hover { transform: scale(1.05); color: white; }
+        
+        @keyframes pulse-animation {
+            0% { box-shadow: 0 0 0 0 rgba(255, 65, 108, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 65, 108, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 65, 108, 0); }
+        }
+
+        /* --- फ्लोटिंग डेमो बटन --- */
+        .floating-demo {
+            position: fixed; bottom: 30px; right: 30px; background: white;
+            display: flex; align-items: center; padding: 8px 20px 8px 8px;
+            border-radius: 50px; text-decoration: none; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 1000; border: 2px solid #f0ad4e; transition: transform 0.3s;
+        }
+        .floating-demo:hover { transform: translateY(-5px); }
+        .floating-demo .demo-icon {
+            background: #f0ad4e; color: white; width: 45px; height: 45px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center; font-size: 20px;
+            margin-right: 12px; animation: bounce 2s infinite;
+        }
+        .floating-demo .demo-text { display: flex; flex-direction: column; }
+        .floating-demo .demo-text span { font-size: 12px; color: #666; }
+        .floating-demo .demo-text b { color: #2c3e50; font-size: 16px; }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-5px); }
+            60% { transform: translateY(-3px); }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="#" class="logo"><i class="fas fa-laptop-code"></i> ज्ञान कम्प्यूटर</a>
+        <div class="nav-links">
+            <a href="#home">होम</a>
+            <a href="#features">विशेषताएं</a>
+            <a href="rules.html">नियम व शर्तें</a>
+            <a href="login.html" class="btn-login"><i class="fas fa-sign-in-alt"></i> पोर्टल लॉगिन</a>
+        </div>
+    </nav>
+
+    <section class="hero" id="home">
+        <div class="hero-text">
+            <div class="badge"><i class="fas fa-id-card"></i> आधार ऑपरेटर / सुपरवाइजर (NSEIT) परीक्षा की सटीक तैयारी</div>
+            <h1>ऑनलाइन <span>आधार (UIDAI)</span> मॉक टेस्ट 2026</h1>
+            <p><b>ग्लोबल कम्प्यूटर अकादमी </b> द्वारा प्रस्तुत। अब NSEIT आधार सुपरवाइजर और ऑपरेटर परीक्षा को पहले ही प्रयास में पास करें। नवीनतम सिलेबस पर आधारित रियल-टाइम मॉक टेस्ट घर बैठे अपने मोबाइल या कंप्यूटर पर दें।</p>
+            <p><span class="highlight-text"><i class="fas fa-check-circle"></i> 100% सफलता की गारंटी | अध्याय-वार महत्वपूर्ण प्रश्न</span></p>
+            
+            <div class="hero-buttons">
+                <a href="register.html" class="btn-primary"><i class="fas fa-user-plus"></i> रजिस्टर करें</a>
+                <a href="login.html" class="btn-secondary">लॉगिन</a>
+                <a href="demo.html" class="btn-demo-pulse">
+                    <i class="fas fa-gift"></i> फ्री डेमो टेस्ट दें
+                </a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <div><i class="fas fa-fingerprint"></i></div> 
+        </div>
+    </section>
+
+    <section class="prizes-section" id="features">
+        <h2 class="section-title">हमारे मॉक टेस्ट की प्रमुख विशेषताएं</h2>
+        <p class="section-subtitle">परीक्षा में आपको 100% सफलता दिलाने के लिए डिज़ाइन किया गया</p>
+        
+        <div class="prizes-grid">
+            <div class="prize-card prize-1">
+                <div class="prize-icon"><i class="fas fa-book-open"></i></div>
+                <div class="prize-title">नवीनतम सिलेबस</div>
+                <div class="prize-amount">500+ Qs</div>
+                <div class="prize-items">
+                    <p><i class="fas fa-check"></i> NSEIT आधारित नए प्रश्न</p>
+                    <p><i class="fas fa-check"></i> सभी 9 अध्याय शामिल</p>
+                </div>
+            </div>
+
+            <div class="prize-card prize-2">
+                <div class="prize-icon"><i class="fas fa-desktop"></i></div>
+                <div class="prize-title">रियल-टाइम अनुभव</div>
+                <div class="prize-amount">110 Min</div>
+                <div class="prize-items">
+                    <p><i class="fas fa-clock"></i> मुख्य परीक्षा जैसा टाइमर</p>
+                    <p><i class="fas fa-laptop"></i> बिल्कुल वैसा ही इंटरफेस</p>
+                </div>
+            </div>
+
+            <div class="prize-card prize-3">
+                <div class="prize-icon"><i class="fas fa-chart-pie"></i></div>
+                <div class="prize-title">तुरंत परिणाम</div>
+                <div class="prize-amount">100%</div>
+                <div class="prize-items">
+                    <p><i class="fas fa-check-double"></i> सही/गलत उत्तर विश्लेषण</p>
+                    <p><i class="fas fa-print"></i> तुरंत स्कोरकार्ड प्राप्त करें</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="steps-section" id="steps">
+        <h2 class="section-title">मॉक टेस्ट कैसे दें?</h2>
+        <p class="section-subtitle">केवल 4 आसान चरणों में अपनी तैयारी जांचें</p>
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-icon"><i class="fas fa-edit"></i></div>
+                <h3>1. फॉर्म भरें</h3>
+                <p>रजिस्ट्रेशन बटन पर क्लिक करें, अपनी जानकारी दर्ज करें और मॉक टेस्ट का पैकेज चुनें।</p>
+            </div>
+            <div class="step-card">
+                <div class="step-icon"><i class="fas fa-envelope-open-text"></i></div>
+                <h3>2. आईडी प्राप्त करें</h3>
+                <p>प्रक्रिया पूरी होते ही आपके रजिस्टर्ड ईमेल और मोबाइल पर लॉगिन आईडी व पासवर्ड भेज दिया जाएगा।</p>
+            </div>
+            <div class="step-card">
+                <div class="step-icon"><i class="fas fa-mouse-pointer"></i></div>
+                <h3>3. ऑनलाइन टेस्ट</h3>
+                <p>दी गई आईडी से हमारे स्मार्ट पोर्टल पर लॉगिन करें और 110 मिनट का फुल-लेंथ मॉक टेस्ट दें।</p>
+            </div>
+            <div class="step-card">
+                <div class="step-icon"><i class="fas fa-award"></i></div>
+                <h3>4. तुरंत रिज़ल्ट</h3>
+                <p>टेस्ट सबमिट करते ही अपना स्कोर और पास/फेल स्टेटस (सुपरवाइजर या ऑपरेटर) स्क्रीन पर देखें।</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-col" style="flex: 2;">
+                <h3 style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-laptop-code" style="color: #f0ad4e;"></i> ज्ञान कम्प्यूटर अकादमी
+                </h3>
+                <p>युवाओं को तकनीकी रूप से सशक्त और जागरूक बनाने के लिए प्रतिबद्ध एक अग्रणी संस्थान। हम बेहतरीन IT एजुकेशन और एग्जाम प्रिपरेशन करवाते हैं।</p>
+            </div>
+            <div class="footer-col" style="flex: 1;">
+                <h3>महत्वपूर्ण लिंक</h3>
+                <a href="register.html">नया रजिस्ट्रेशन</a>
+                <a href="login.html">परीक्षा पोर्टल लॉगिन</a>
+                <a href="demo.html">फ्री डेमो टेस्ट</a>
+            </div>
+            <div class="footer-col" style="flex: 1;">
+                <h3>संपर्क करें</h3>
+                <p><i class="fas fa-phone-alt" style="color: #f0ad4e;"></i> +91 8878038225</p>
+                <p><i class="fas fa-envelope" style="color: #f0ad4e;"></i> support@gyancomputer.com</p>
+                <p><i class="fas fa-map-marker-alt" style="color: #f0ad4e;"></i> ज्ञान कंप्यूटर अकादमी, (C.G.)</p>
+            </div>
+        </div>
+        <div class="copyright">
+            &copy; 2026 ज्ञान कम्प्यूटर एवं ग्लोबल आईटी चॉइस सेंटर। सर्वाधिकार सुरक्षित।
+        </div>
+    </footer>
+
+    <a href="demo.html" class="floating-demo">
+        <div class="demo-icon"><i class="fas fa-laptop-code"></i></div>
+        <div class="demo-text">
+            <span>मुफ़्त में आज़माएं</span>
+            <b>फ्री डेमो टेस्ट</b>
+        </div>
+    </a>
+
+</body>
+</html>

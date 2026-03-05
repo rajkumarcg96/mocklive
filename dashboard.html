@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>कैंडिडेट डैशबोर्ड - ज्ञान कम्प्यूटर</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --secondary: #764ba2;
+            --bg-color: #f4f7f6;
+            --text-dark: #2c3e50;
+            --text-gray: #5f6368;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-color); color: #333; min-height: 100vh; display: flex; flex-direction: column; }
+
+        /* --- Header --- */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100;
+        }
+        .header h2 { font-size: 22px; margin: 0; display: flex; align-items: center; gap: 10px; }
+        .header-right { display: flex; align-items: center; gap: 20px; }
+        
+        .btn-logout {
+            background-color: rgba(255, 255, 255, 0.2); color: white; border: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s;
+        }
+        .btn-logout:hover { background-color: #dc3545; border-color: #dc3545; }
+
+        /* --- Container --- */
+        .container { max-width: 1100px; margin: 40px auto; padding: 20px; flex: 1; width: 100%; }
+        
+        .page-title { text-align: center; margin-bottom: 40px; }
+        .page-title h1 { font-size: 32px; font-weight: 800; color: var(--text-dark); margin-bottom: 10px; }
+        .page-title p { color: var(--text-gray); font-size: 16px; }
+
+        /* --- Main Actions Grid (Training & Exam) --- */
+        .actions-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; margin-bottom: 40px;
+        }
+        
+        .action-card {
+            background: white; border-radius: 15px; padding: 40px 30px; text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: 0.3s; border: 2px solid transparent;
+        }
+        .action-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.1); border-color: var(--primary); }
+        
+        .icon-box {
+            width: 80px; height: 80px; margin: 0 auto 20px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center; font-size: 35px; color: white;
+        }
+        .icon-training { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); }
+        .icon-exam { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+
+        .action-card h3 { font-size: 22px; color: var(--text-dark); margin-bottom: 15px; }
+        .action-card p { color: var(--text-gray); font-size: 15px; margin-bottom: 30px; line-height: 1.6; }
+
+        .btn-action {
+            display: inline-block; padding: 12px 30px; border-radius: 30px; text-decoration: none;
+            font-weight: bold; font-size: 16px; transition: 0.3s; width: 80%;
+        }
+        .btn-training { background: #fff3cd; color: #856404; }
+        .btn-training:hover { background: #f0ad4e; color: white; }
+        .btn-exam { background: #e8f0fe; color: var(--primary); }
+        .btn-exam:hover { background: var(--primary); color: white; }
+
+        /* --- Stats & Leaderboard Grid (सही किया गया) --- */
+        .stats-grid {
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 25px; 
+            align-items: start; /* इससे कार्ड्स अपनी साइज़ के हिसाब से रहेंगे, खिंचेंगे नहीं */
+        }
+
+        .stat-card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .stat-card h3 { font-size: 18px; color: var(--text-dark); margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px; display: flex; align-items: center; gap: 10px;}
+        
+        /* Boxes inside Stats */
+        .stat-box { display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 15px 20px; border-radius: 8px; margin-bottom: 12px; font-weight: bold; color: var(--text-gray); }
+        .stat-value { font-size: 18px; }
+        .best-score-box { background: #e8f0fe; border: 1px solid #d2e3fc; }
+        
+        /* Leaderboard */
+        .leaderboard-list { list-style: none; margin-top: 10px; }
+        .leaderboard-list li { display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; border-bottom: 1px solid #eee; }
+        .leaderboard-list li:last-child { border-bottom: none; }
+        .rank-badge { width: 30px; height: 30px; display: inline-flex; justify-content: center; align-items: center; background: #f0ad4e; color: white; border-radius: 50%; font-size: 13px; font-weight: bold; margin-right: 12px; }
+        .rank-1 { background: #ffd700; box-shadow: 0 0 10px rgba(255,215,0,0.6); }
+        .rank-2 { background: #c0c0c0; }
+        .rank-3 { background: #cd7f32; }
+
+        /* Footer */
+        .footer { text-align: center; padding: 20px; background: white; color: var(--text-gray); font-size: 14px; border-top: 1px solid #eee; margin-top: auto; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2><i class="fas fa-fingerprint"></i> ज्ञान कम्प्यूटर - आधार (NSEIT) पोर्टल</h2>
+        <div class="header-right">
+            <span id="displayStudentName" style="font-weight: 600; font-size: 16px;"><i class="fas fa-user-circle"></i> लोड हो रहा है...</span>
+            <button class="btn-logout" onclick="logoutStudent()"><i class="fas fa-sign-out-alt"></i> लॉगआउट</button>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <div class="page-title">
+            <h1 id="welcomeTitle">कैंडिडेट डैशबोर्ड</h1>
+            <p>अपनी सुविधानुसार नीचे दिए गए विकल्पों में से चुनें। परीक्षा से पहले ट्रेनिंग मॉड्यूल का अभ्यास अवश्य करें।</p>
+        </div>
+
+        <div class="actions-grid">
+            <div class="action-card">
+                <div class="icon-box icon-training"><i class="fas fa-book-reader"></i></div>
+                <h3>ट्रेनिंग मॉड्यूल (Training)</h3>
+                <p>अध्याय (Chapter) के अनुसार सभी प्रश्न-उत्तर पढ़ें और प्रत्येक अध्याय को पूरा करने के बाद 10 अंकों का प्रैक्टिस टेस्ट दें।</p>
+                <a href="training.html" class="btn-action btn-training">ट्रेनिंग शुरू करें <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <div class="action-card">
+                <div class="icon-box icon-exam"><i class="fas fa-desktop"></i></div>
+                <h3>मुख्य मॉक टेस्ट (Mock Exam)</h3>
+                <p>मुख्य आधार परीक्षा (NSEIT) के पैटर्न पर आधारित 110 मिनट का फुल-लेंथ लाइव मॉक टेस्ट दें और अपना परिणाम जानें।</p>
+                <a href="exams.html" class="btn-action btn-exam">मॉक टेस्ट दें <i class="fas fa-play"></i></a>
+            </div>
+        </div>
+<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; padding: 25px; color: white; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);">
+            <div style="flex: 1; min-width: 300px;">
+                <h3 style="font-size: 24px; margin-bottom: 10px;"><i class="fas fa-gift" style="color: #ffd700;"></i> Refer & Earn (5 दिन की अतिरिक्त वैधता पाएं!)</h3>
+                <p style="font-size: 15px; margin-bottom: 15px; opacity: 0.9;">अपने दोस्तों को ज्ञान कम्प्यूटर पोर्टल का सुझाव दें। जब वे रजिस्ट्रेशन करते समय आपका 'रेफरल कोड' डालेंगे, तो आपकी आईडी की वैधता अपने आप 5 दिन बढ़ जाएगी!</p>
+                <div style="background: rgba(255,255,255,0.2); display: inline-block; padding: 10px 20px; border-radius: 8px; border: 1px dashed rgba(255,255,255,0.5);">
+                    आपका रेफरल कोड: <b id="myReferralCode" style="font-size: 20px; letter-spacing: 1px; color: #ffd700;">---</b>
+                </div>
+            </div>
+            <div style="margin-top: 15px;">
+                <button onclick="shareOnWhatsApp()" style="background: #25D366; color: white; border: none; padding: 12px 25px; border-radius: 30px; font-weight: bold; font-size: 16px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.4);">
+                    <i class="fab fa-whatsapp" style="font-size: 20px;"></i> WhatsApp पर शेयर करें
+                </button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            
+            <div class="stat-card" style="border-top: 5px solid #f0ad4e;">
+                <h3><i class="fas fa-wallet" style="color: #f0ad4e;"></i> अकाउंट समरी</h3>
+                <p style="font-size: 13px; color: #777; margin-bottom: 15px;">आपके सब्सक्रिप्शन की जानकारी:</p>
+                
+                <div class="stat-box" style="background: #fffdf8; border: 1px solid #ffecb3;">
+                    <span style="font-size: 14px;">कुल भुगतान:</span>
+                    <span class="stat-value" id="myAmount" style="color: #28a745;">₹0</span>
+                </div>
+                <div class="stat-box" style="background: #fff5f5; border: 1px solid #ffe3e3;">
+                    <span style="font-size: 14px;">वैधता (Expiry):</span>
+                    <span class="stat-value" id="myExpiry" style="color: #dc3545; font-size: 16px;">-</span>
+                </div>
+            </div>
+
+            <div class="stat-card" style="border-top: 5px solid #28a745;">
+                <h3><i class="fas fa-chart-line" style="color: #28a745;"></i> मेरी प्रगति रिपोर्ट</h3>
+                <div class="stat-box">
+                    <span style="font-size: 14px;">कुल टेस्ट:</span>
+                    <span class="stat-value" id="myAttempts" style="color: #5f6368;">0</span>
+                </div>
+                <div class="stat-box">
+                    <span style="font-size: 14px;">पिछला स्कोर:</span>
+                    <span class="stat-value" id="myLatestScore" style="color: #5f6368;">0</span>
+                </div>
+                <div class="stat-box best-score-box">
+                    <span style="color: var(--primary); font-size: 14px;">बेस्ट स्कोर:</span>
+                    <span class="stat-value" id="myBestScore" style="color: var(--primary); font-size: 22px;">0</span>
+                </div>
+            </div>
+
+            <div class="stat-card" style="border-top: 5px solid #1a73e8;">
+                <h3><i class="fas fa-trophy" style="color: #1a73e8;"></i> टॉप स्कोरर्स</h3>
+                <ul class="leaderboard-list" id="leaderboardList">
+                    <li style="justify-content: center; color: #999;">डेटा लोड हो रहा है...</li>
+                </ul>
+            </div>
+
+        </div> </div> <div class="footer">
+        &copy; 2026 ज्ञान कम्प्यूटर एवं ग्लोबल आईटी चॉइस सेंटर। सभी अधिकार सुरक्षित।
+    </div>
+
+<script>
+        // 👇 अपना सही Google Script URL यहाँ डालें 👇
+        const scriptURL = "https://script.google.com/macros/s/AKfycbxuUL6GRkOTyB6s6a4c5aYf-qybA8plvMXIismC-5Du0onqFbPXLb3__qJjwrvN-sM_GQ/exec"; 
+
+        window.onload = function() {
+            let studentName = localStorage.getItem("studentName");
+            let studentID = localStorage.getItem("studentID");
+            let sessionToken = localStorage.getItem("sessionToken"); // 🔒 सिक्योरिटी टोकन
+
+            if (!studentName || !studentID) {
+                alert("सुरक्षा चेतावनी: कृपया पहले अपनी आईडी और पासवर्ड से लॉगिन करें।");
+                window.location.replace("login.html"); 
+            } else {
+                // 1. नाम सेट करें
+                document.getElementById("displayStudentName").innerHTML = `<i class="fas fa-user-circle"></i> नमस्ते, ${studentName}`;
+                
+                // 2. रेफरल कोड सेट करें (यह '---' को हटाकर असली आईडी दिखाएगा)
+                if(document.getElementById("myReferralCode")) {
+                    document.getElementById("myReferralCode").innerText = studentID;
+                }
+
+                // 3. डैशबोर्ड का डेटा मंगाएं (अकाउंट समरी और लीडरबोर्ड)
+                fetchDashboardData(studentID);
+
+                // 4. एंटी-शेयरिंग चेक (One ID, One Device) चालू करें
+                checkDeviceSession();
+                setInterval(checkDeviceSession, 20000); // हर 20 सेकंड में चेक करेगा
+            }
+        };
+
+        // --- डेटा मंगाने का फंक्शन ---
+        function fetchDashboardData(username) {
+            fetch(scriptURL + "?action=getDashboardData&username=" + username)
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === "success") {
+                    
+                    // 1. अकाउंट समरी अपडेट
+                    document.getElementById("myAmount").innerText = data.myStats.amount || "₹0";
+                    document.getElementById("myExpiry").innerText = data.myStats.expiry || "-";
+                    
+                    // 2. मेरी प्रगति अपडेट
+                    document.getElementById("myAttempts").innerText = data.myStats.attempts || 0;
+                    document.getElementById("myLatestScore").innerText = data.myStats.latestScore || 0;
+                    document.getElementById("myBestScore").innerText = data.myStats.bestScore || 0;
+
+                    // 3. लीडरबोर्ड अपडेट
+                    let listHtml = "";
+                    if(data.leaderboard.length === 0) {
+                        listHtml = "<li style='justify-content: center; color: #999; font-size: 14px;'>अभी तक किसी ने टेस्ट नहीं दिया है।</li>";
+                    } else {
+                        data.leaderboard.forEach((student, index) => {
+                            let rankClass = index === 0 ? "rank-1" : (index === 1 ? "rank-2" : (index === 2 ? "rank-3" : ""));
+                            let medalIcon = "";
+                            
+                            // टॉप 3 के लिए मेडल
+                            if(index === 0) medalIcon = ' <i class="fas fa-medal" style="color: #ffd700;"></i>';
+                            if(index === 1) medalIcon = ' <i class="fas fa-medal" style="color: #c0c0c0;"></i>';
+                            if(index === 2) medalIcon = ' <i class="fas fa-medal" style="color: #cd7f32;"></i>';
+
+                            listHtml += `
+                                <li>
+                                    <div style="display: flex; align-items: center;">
+                                        <span class="rank-badge ${rankClass}">#${index + 1}</span> 
+                                        <b style="color: #2c3e50; font-size: 14px;">${student.name} ${medalIcon}</b>
+                                    </div>
+                                    <span style="color: #28a745; font-weight: bold; font-size: 15px;">${student.score} Marks</span>
+                                </li>
+                            `;
+                        });
+                    }
+                    document.getElementById("leaderboardList").innerHTML = listHtml;
+                }
+            })
+            .catch(err => {
+                console.error("Error fetching dashboard data:", err);
+                document.getElementById("leaderboardList").innerHTML = "<li style='justify-content: center; color: #dc3545; font-size: 14px;'>डेटा लोड करने में त्रुटि!</li>";
+            });
+        }
+
+        // --- WhatsApp पर रेफरल शेयर करने का फंक्शन ---
+        function shareOnWhatsApp() {
+            let myCode = localStorage.getItem("studentID");
+            let msg = `नमस्ते! मैंने आधार (NSEIT) परीक्षा की तैयारी के लिए 'ज्ञान कम्प्यूटर' का मॉक टेस्ट पोर्टल लिया है। यह बहुत शानदार है! रजिस्ट्रेशन करते समय 'रेफरल कोड' में मेरा कोड: *${myCode}* डालें। \n\nलिंक: https://yourwebsite.com/register.html`;
+            window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(msg), "_blank");
+        }
+
+        // --- एंटी-शेयरिंग (सिक्योरिटी) फंक्शन ---
+        function checkDeviceSession() {
+            let sid = localStorage.getItem("studentID");
+            let stoken = localStorage.getItem("sessionToken");
+            
+            if(sid && stoken) {
+                fetch(scriptURL + "?action=checkSession&username=" + sid + "&token=" + stoken)
+                .then(res => res.json())
+                .then(data => {
+                    if(data.status === "invalid") {
+                        alert("सुरक्षा चेतावनी: आपकी आईडी किसी अन्य डिवाइस पर लॉग इन की गई है! आपको यहाँ से लॉगआउट किया जा रहा है। (एक समय पर केवल एक डिवाइस की अनुमति है)");
+                        localStorage.clear();
+                        window.location.replace("login.html");
+                    }
+                })
+                .catch(err => console.log("Session check background process running..."));
+            }
+        }
+
+        // --- लॉगआउट फंक्शन ---
+        function logoutStudent() {
+            if(confirm("क्या आप वाकई अपनी आईडी से बाहर (Logout) जाना चाहते हैं?")) {
+                localStorage.clear();
+                window.location.replace("login.html");
+            }
+        }
+    </script>
+</body>
+</html>
