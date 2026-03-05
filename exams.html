@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>आधार (NSEIT) मॉक टेस्ट - ज्ञान कम्प्यूटर</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f0f2f5; color: #333; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+        /* Top Header */
+        .header { background-color: #1a73e8; color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10; }
+        .header-left h2 { font-size: 20px; margin: 0; display: flex; align-items: center; gap: 8px;}
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .timer { background: #d32f2f; padding: 5px 15px; border-radius: 5px; font-size: 18px; font-weight: bold; letter-spacing: 1px; }
+        
+        /* Logout Button Styles */
+        .btn-logout { background-color: #dc3545; color: white; border: none; padding: 6px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 15px; }
+        .btn-logout:hover { background-color: #c82333; }
+
+        /* Main Content Layout */
+        .main-container { display: flex; flex: 1; height: calc(100vh - 50px); }
+
+        /* Left Side: Question Area */
+        .left-panel { flex: 3; display: flex; flex-direction: column; border-right: 1px solid #ccc; background: white; position: relative; }
+        
+        .question-header { padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 18px; color: #1a73e8; }
+        .btn-audio { background: #e8f0fe; color: #1a73e8; border: none; padding: 6px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.2s; }
+        .btn-audio:hover { background: #d2e3fc; transform: scale(1.05); }
+
+        .question-body { padding: 30px; flex: 1; overflow-y: auto; font-size: 16px; line-height: 1.6; }
+        .question-text { margin-bottom: 25px; font-weight: 600; font-size: 18px; color: #202124; }
+        
+        .option-container { margin-bottom: 15px; display: flex; align-items: center; padding: 10px 15px; border: 1px solid #dadce0; border-radius: 5px; cursor: pointer; transition: 0.2s; }
+        .option-container:hover { background-color: #f8f9fa; }
+        .option-container input[type="radio"] { margin-right: 15px; transform: scale(1.3); cursor: pointer; }
+
+        /* Action Buttons */
+        .action-buttons { padding: 15px 20px; background: #f8f9fa; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .btn { padding: 10px 20px; border: none; border-radius: 4px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; color: white; }
+        .btn-review { background-color: #f0ad4e; color: #fff; }
+        .btn-clear { background-color: #fff; color: #333; border: 1px solid #ccc; }
+        .btn-clear:hover { background-color: #e2e6ea; }
+        .btn-prev { background-color: #6c757d; }
+        .btn-next { background-color: #1a73e8; }
+        .btn:hover { opacity: 0.9; }
+
+        /* Right Side: Palette Area */
+        .right-panel { flex: 1; background: #fff; display: flex; flex-direction: column; min-width: 250px; max-width: 300px; }
+        
+        .user-profile { padding: 15px; background: #e8f0fe; border-bottom: 1px solid #ccc; text-align: center; }
+        .user-icon { width: 60px; height: 60px; background: #1a73e8; color: white; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-size: 30px; margin-bottom: 10px; }
+        .user-name { font-weight: bold; font-size: 16px; color: #202124; }
+        .user-id { font-size: 13px; color: #5f6368; }
+
+        /* Status Legend */
+        .legend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; font-size: 12px; border-bottom: 1px solid #eee; }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .badge { width: 25px; height: 25px; border-radius: 4px; display: inline-flex; justify-content: center; align-items: center; color: white; font-weight: bold; font-size: 12px; border: 1px solid #ccc; }
+        
+        /* Color Codes */
+        .bg-answered { background-color: #2e7d32; border-color: #2e7d32; color: white; } 
+        .bg-not-answered { background-color: #d32f2f; border-color: #d32f2f; color: white; } 
+        .bg-not-visited { background-color: #f1f3f4; color: #333; } 
+        .bg-review { background-color: #673ab7; border-color: #673ab7; color: white; } 
+
+        /* Palette Grid */
+        .palette-container { padding: 15px; flex: 1; overflow-y: auto; }
+        .palette-title { font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        .question-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .q-btn { width: 100%; aspect-ratio: 1; border-radius: 4px; border: 1px solid #ccc; cursor: pointer; font-weight: bold; display: flex; justify-content: center; align-items: center; font-size: 14px; transition: 0.2s; }
+        .q-btn:hover { opacity: 0.8; transform: scale(1.05); }
+
+        .submit-section { padding: 15px; background: #f8f9fa; border-top: 1px solid #ccc; text-align: center; }
+        .btn-submit { background-color: #28a745; width: 100%; padding: 12px; font-size: 16px; border-radius: 5px; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-submit:hover { background-color: #218838; }
+
+        /* Screens */
+        .overlay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f0f2f5; z-index: 1500; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        .loader-overlay { background: rgba(255,255,255,0.95); z-index: 2000; }
+        .spinner { width: 60px; height: 60px; border: 5px solid #f3f3f3; border-top: 5px solid #1a73e8; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .score-box { background: #1a73e8; color: white; width: 150px; height: 150px; border-radius: 50%; display: flex; justify-content: center; align-items: center; flex-direction: column; font-size: 40px; font-weight: bold; box-shadow: 0 10px 20px rgba(26, 115, 232, 0.4); }
+        .score-box span { font-size: 16px; font-weight: normal; }
+
+        /* Language Selection Box */
+        .lang-box { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 100%; }
+        .lang-select { width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e0e0e0; font-size: 16px; margin-bottom: 25px; outline: none; }
+
+        /* Review Answers Screen CSS */
+        .review-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f0f2f5; z-index: 2500; flex-direction: column; }
+        .review-header { background: #2c3e50; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .review-content { padding: 20px; overflow-y: auto; flex: 1; max-width: 900px; margin: 0 auto; width: 100%; }
+        .review-q-box { background: white; padding: 25px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 5px solid #ccc; }
+        .review-q-box.correct { border-left-color: #28a745; }
+        .review-q-box.wrong { border-left-color: #d32f2f; }
+        .review-q-box.unattempted { border-left-color: #f0ad4e; }
+        .review-options { list-style: none; padding: 0; margin-top: 15px; }
+        .review-options li { padding: 12px 15px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #eee; background: #f8f9fa; }
+        .review-options li.correct-opt { background: #d4edda; border-color: #c3e6cb; color: #155724; font-weight: bold; }
+        .review-options li.wrong-opt { background: #f8d7da; border-color: #f5c6cb; color: #721c24; font-weight: bold; }
+        .review-status { margin-top: 15px; font-size: 15px; padding-top: 12px; border-top: 1px dashed #ccc; }
+        
+        .btn-cert { background: #28a745; color: white; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; box-shadow: 0 4px 10px rgba(40,167,69,0.3); }
+        .btn-cert:hover { background: #218838; }
+
+        /* --- मोबाइल रिज़ल्ट स्क्रीन फिक्स --- */
+        @media (max-width: 600px) {
+            .score-box { width: 120px; height: 120px; font-size: 32px; }
+            .score-box span { font-size: 14px; }
+            .main-container { flex-direction: column; }
+            .left-panel { flex: 1; border-right: none; border-bottom: 1px solid #ccc; }
+            .right-panel { flex: none; height: 250px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay-screen" id="languageScreen">
+        <div class="lang-box">
+            <i class="fas fa-language" style="font-size: 50px; color: #1a73e8; margin-bottom: 20px;"></i>
+            <h2 style="color: #2c3e50; margin-bottom: 10px;">परीक्षा की भाषा चुनें</h2>
+            <p style="color: #5f6368; margin-bottom: 25px;">Select Exam Language</p>
+            
+            <select id="examLanguage" class="lang-select">
+                <option value="Hindi">हिंदी (Hindi)</option>
+                <option value="English">English</option>
+            </select>
+            
+            <button onclick="startFetchingQuestions()" class="btn-submit" style="width: 100%;"><i class="fas fa-play"></i> परीक्षा शुरू करें / Start Exam</button>
+        </div>
+    </div>
+
+    <div class="overlay-screen loader-overlay" id="loader" style="display: none;">
+        <div class="spinner"></div>
+        <h2 style="color: #1a73e8;">प्रश्न लोड हो रहे हैं... / Loading...</h2>
+        <p style="color: #5f6368; margin-top: 10px;">कृपया प्रतीक्षा करें, पेज को रिफ्रेश न करें।</p>
+    </div>
+
+    <div class="overlay-screen loader-overlay" id="resultScreen" style="display: none; padding: 20px; text-align: center; overflow-y: auto;">
+        <i class="fas fa-check-circle" style="font-size: 50px; color: #28a745; margin-bottom: 10px;" id="resultIcon"></i>
+        <h1 style="color: #202124; font-size: 24px; line-height: 1.4;">मॉक टेस्ट सफलतापूर्वक सबमिट हो गया!</h1>
+        
+        <div class="score-box" style="margin: 15px auto;">
+            <div id="finalScore">0</div>
+            <span>प्राप्त अंक</span>
+        </div>
+        
+        <h3 id="resultMessage" style="color: #1a73e8; margin-top: 10px; font-size: 20px;"></h3>
+        <p id="savingText" style="color: #e74c3c; font-weight: bold; margin-top: 10px; font-size: 14px;">कृपया प्रतीक्षा करें, रिज़ल्ट सेव हो रहा है...</p>
+        
+        <div style="width: 100%; max-width: 400px; margin: 20px auto 0; display: flex; flex-direction: column; gap: 12px;">
+            
+            <button id="btnCertificate" onclick="downloadCertificate()" class="btn-cert" style="display: none; width: 100%; padding: 14px; font-size: 16px;">
+                <i class="fas fa-file-pdf"></i> अपना सर्टिफिकेट डाउनलोड करें
+            </button>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 10px;">
+                <button onclick="showReviewAnswers()" class="btn-logout" style="background: #17a2b8; display: none; width: 100%; padding: 12px 5px; font-size: 14px;" id="viewAnswersBtn">
+                    <i class="fas fa-list-check"></i> उत्तर कुंजिका
+                </button>
+                
+                <button onclick="window.onbeforeunload = null; location.reload();" class="btn-logout" style="background: #f0ad4e; display: none; width: 100%; padding: 12px 5px; font-size: 14px;" id="restartBtn">
+                    <i class="fas fa-redo"></i> दोबारा टेस्ट
+                </button>
+                
+                <button onclick="window.onbeforeunload = null; window.location.href='dashboard.html';" class="btn-logout" style="background: #1a73e8; display: none; width: 100%; padding: 12px 5px; font-size: 14px;" id="homeBtn">
+                    <i class="fas fa-home"></i> डैशबोर्ड
+                </button>
+                
+                <button onclick="logoutStudent()" class="btn-logout" id="logoutBtn" style="display: none; width: 100%; padding: 12px 5px; font-size: 14px;">
+                    <i class="fas fa-sign-out-alt"></i> लॉगआउट
+                </button>
+            </div>
+            
+        </div>
+    </div>
+
+    <div id="certificateTemplate" style="display: none; width: 800px; padding: 40px; background: white; border: 15px solid #1a73e8; text-align: center; font-family: 'Segoe UI', sans-serif;">
+        <div style="border: 2px solid #f0ad4e; padding: 40px;">
+            <h1 style="color: #1a73e8; font-size: 40px; margin-bottom: 10px;"><i class="fas fa-award" style="color: #f0ad4e;"></i> Certificate of Excellence</h1>
+            <h3 style="color: #555; margin-bottom: 30px;">ज्ञान कम्प्यूटर एवं ग्लोबल आईटी चॉइस सेंटर</h3>
+            <p style="font-size: 18px; color: #666; margin-bottom: 15px;">यह प्रमाणित किया जाता है कि</p>
+            <h2 id="certName" style="font-size: 35px; color: #2c3e50; text-decoration: underline; margin-bottom: 20px;">Student Name</h2>
+            <p style="font-size: 18px; color: #666; margin-bottom: 20px;">ने आधार (UIDAI/NSEIT) मॉक परीक्षा सफलतापूर्वक उत्तीर्ण कर ली है।</p>
+            <div style="display: flex; justify-content: space-around; margin-top: 40px;">
+                <div><p style="font-size: 22px; font-weight: bold; color: #28a745;" id="certScore">0</p><p style="color: #777;">प्राप्त अंक</p></div>
+                <div><p style="font-size: 22px; font-weight: bold; color: #333;" id="certDate">Date</p><p style="color: #777;">दिनांक</p></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="review-screen" id="reviewScreen">
+        <div class="review-header">
+            <h2><i class="fas fa-list-check"></i> उत्तर कुंजिका (Answer Key)</h2>
+            <button onclick="backToResult()" class="btn-logout" style="background-color: #6c757d;"><i class="fas fa-arrow-left"></i> रिज़ल्ट पर वापस जाएँ</button>
+        </div>
+        <div class="review-content" id="reviewContentArea"></div>
+    </div>
+
+    <div id="examInterface" style="display: none; flex-direction: column; height: 100%;">
+        <div class="header">
+            <div class="header-left">
+                <h2><i class="fas fa-fingerprint"></i> आधार (UIDAI) मॉक टेस्ट</h2>
+            </div>
+            <div class="header-right">
+                <div class="timer" id="timerBox"><i class="fas fa-clock"></i> Time Left: <span id="time">110:00</span></div>
+                <button onclick="logoutStudent()" class="btn-logout" title="अपनी आईडी से बाहर निकलें">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="main-container">
+            <div class="left-panel">
+                <div class="question-header">
+                    <div>
+                        <span id="qHeaderNo" style="margin-right: 15px;">Question No. 1</span>
+                        <button onclick="speakQuestion()" class="btn-audio"><i class="fas fa-volume-up"></i> सुनें</button>
+                    </div>
+                    <span style="color: #6c757d; font-size: 14px;"><i class="fas fa-info-circle"></i> Marks: +1, -0</span>
+                </div>
+                
+                <div class="question-body">
+                    <div class="question-text" id="qText">लोड हो रहा है...</div>
+                    <div id="optionsContainer"></div>
+                </div>
+
+                <div class="action-buttons">
+                    <div>
+                        <button class="btn btn-review" onclick="markForReview()">Review & Next</button>
+                        <button class="btn btn-clear" onclick="clearResponse()">Clear</button>
+                    </div>
+                    <div>
+                        <button class="btn btn-prev" onclick="prevQuestion()"><i class="fas fa-chevron-left"></i> Prev</button>
+                        <button class="btn btn-next" onclick="saveAndNext()">Save & Next <i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="user-profile">
+                    <div class="user-icon"><i class="fas fa-user"></i></div>
+                    <div class="user-name" id="displayStudentName">Candidate Name</div>
+                    <div class="user-id" id="displayStudentID">ID: UIDAI0000</div>
+                </div>
+
+                <div class="legend-grid">
+                    <div class="legend-item"><div class="badge bg-answered" id="cntAnswered">0</div> Answered</div>
+                    <div class="legend-item"><div class="badge bg-not-answered" id="cntNotAnswered">0</div> Not Answered</div>
+                    <div class="legend-item"><div class="badge bg-not-visited" id="cntNotVisited">0</div> Not Visited</div>
+                    <div class="legend-item"><div class="badge bg-review" id="cntReview">0</div> Review</div>
+                </div>
+
+                <div class="palette-container">
+                    <div class="palette-title">Question Palette:</div>
+                    <div class="question-grid" id="paletteGrid"></div>
+                </div>
+
+                <div class="submit-section">
+                    <button class="btn btn-submit" onclick="confirmSubmit()"><i class="fas fa-paper-plane"></i> Submit Test</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 👇 अपना Web App URL यहाँ डालें 👇
+        const googleScriptURL = "https://script.google.com/macros/s/AKfycbxuUL6GRkOTyB6s6a4c5aYf-qybA8plvMXIismC-5Du0onqFbPXLb3__qJjwrvN-sM_GQ/exec";
+
+        // --- 1. सुरक्षा जांच ---
+        let studentName = localStorage.getItem("studentName");
+        let studentID = localStorage.getItem("studentID");
+
+        if (!studentName || !studentID) {
+            alert("सुरक्षा चेतावनी: अवैध प्रवेश! कृपया पहले अपनी आईडी और पासवर्ड से लॉगिन करें।");
+            window.location.replace("login.html"); 
+        } else {
+            document.getElementById("displayStudentName").innerText = studentName;
+            document.getElementById("displayStudentID").innerText = "ID: " + studentID;
+        }
+
+        // --- 2. सुरक्षा: Back, Refresh और Anti-Sharing ---
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.go(1);
+            alert("सुरक्षा चेतावनी: परीक्षा के दौरान 'Back' बटन का उपयोग वर्जित है!");
+        };
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'F5' || e.keyCode === 116) { e.preventDefault(); alert("परीक्षा के दौरान Refresh मना है!"); }
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'r' || e.keyCode === 82)) { e.preventDefault(); alert("परीक्षा के दौरान Refresh मना है!"); }
+            if (e.altKey && e.keyCode === 37) { e.preventDefault(); }
+            if (e.key === "F12" || (e.ctrlKey && e.shiftKey && e.key === "I") || (e.ctrlKey && e.key === "u")) { e.preventDefault(); }
+        });
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        window.onbeforeunload = function() {
+            return "क्या आप वाकई परीक्षा छोड़ना चाहते हैं? आपका अनसेव्ड डेटा खो सकता है।";
+        };
+
+        function logoutStudent() {
+            if(confirm("क्या आप वाकई अपनी आईडी से बाहर (Logout) जाना चाहते हैं?")) {
+                localStorage.clear();
+                window.onbeforeunload = null;
+                window.location.replace("login.html");
+            }
+        }
+
+        // 🔒 Anti-Sharing Security Check 
+        function checkDeviceSession() {
+            let sid = localStorage.getItem("studentID");
+            let stoken = localStorage.getItem("sessionToken");
+            if(sid && stoken) {
+                fetch(googleScriptURL + "?action=checkSession&username=" + sid + "&token=" + stoken)
+                .then(res => res.json())
+                .then(data => {
+                    if(data.status === "invalid") {
+                        alert("सुरक्षा चेतावनी: आपकी आईडी किसी अन्य डिवाइस पर लॉग इन की गई है! आपको यहाँ से लॉगआउट किया जा रहा है।");
+                        localStorage.clear();
+                        window.onbeforeunload = null;
+                        window.location.replace("login.html");
+                    }
+                }).catch(e => console.log("Session check background process running..."));
+            }
+        }
+        setInterval(checkDeviceSession, 20000); // हर 20 सेकंड में चेक
+
+        // --- 3. ग्लोबल वेरिएबल्स ---
+        let questions = []; 
+        let currentQuestion = 0;
+        let qStatus = []; 
+        let userAnswers = []; 
+        let timerInterval;
+        let currentLang = "Hindi";
+
+        // --- 4. भाषा चुनकर प्रश्न मंगाना ---
+        function startFetchingQuestions() {
+            currentLang = document.getElementById("examLanguage").value;
+            document.getElementById("languageScreen").style.display = "none";
+            document.getElementById("loader").style.display = "flex";
+
+            fetch(googleScriptURL + "?action=getQuestions&lang=" + currentLang + "&t=" + new Date().getTime())
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === "success" && data.data.length > 0) {
+                    questions = data.data.slice(0, 100); // सुनिश्चित करें कि 100 प्रश्न ही हों
+                    qStatus = new Array(questions.length).fill(0); 
+                    userAnswers = new Array(questions.length).fill(null); 
+                    
+                    document.getElementById("loader").style.display = "none";
+                    document.getElementById("examInterface").style.display = "flex";
+                    
+                    initExam();
+                    startTimer();
+                } else {
+                    document.getElementById("loader").style.display = "none";
+                    document.getElementById("languageScreen").style.display = "flex";
+                    alert("इस भाषा में प्रश्न उपलब्ध नहीं हैं! कृपया एडमिन से संपर्क करें।");
+                }
+            })
+            .catch(err => {
+                alert("इंटरनेट समस्या! प्रश्न लोड नहीं हो सके।");
+                document.getElementById("loader").style.display = "none";
+                document.getElementById("languageScreen").style.display = "flex";
+            });
+        }
+
+        function initExam() {
+            if(questions.length === 0) return;
+            generatePalette();
+            qStatus[0] = 1; 
+            showQuestion(0);
+            updateLegendCounts();
+        }
+
+        function generatePalette() {
+            const grid = document.getElementById("paletteGrid");
+            grid.innerHTML = "";
+            for (let i = 0; i < questions.length; i++) {
+                grid.innerHTML += `<button class="q-btn bg-not-visited" id="btnQ${i}" onclick="jumpToQuestion(${i})">${i + 1}</button>`;
+            }
+        }
+
+        function showQuestion(index) {
+            window.speechSynthesis.cancel(); // अगला प्रश्न आते ही ऑडियो बंद
+            currentQuestion = index;
+            document.getElementById("qHeaderNo").innerText = `Question No. ${index + 1} / 100`;
+            document.getElementById("qText").innerText = `${index + 1}. ` + questions[index].question;
+            
+            const optContainer = document.getElementById("optionsContainer");
+            optContainer.innerHTML = "";
+            
+            questions[index].options.forEach((opt, i) => {
+                let isChecked = (userAnswers[index] === i) ? "checked" : "";
+                optContainer.innerHTML += `
+                    <label class="option-container">
+                        <input type="radio" name="qOption" value="${i}" ${isChecked} onchange="selectOption(${index}, ${i})"> <span class="opt-lbl-text">${opt}</span>
+                    </label>
+                `;
+            });
+
+            if(qStatus[index] === 0) { qStatus[index] = 1; }
+            updatePaletteColors();
+        }
+
+        function selectOption(qIndex, optIndex) { userAnswers[qIndex] = optIndex; }
+
+        window.saveAndNext = function() {
+            if(userAnswers[currentQuestion] !== null) { qStatus[currentQuestion] = 2; } 
+            else { qStatus[currentQuestion] = 1; }
+            if (currentQuestion < questions.length - 1) { showQuestion(currentQuestion + 1); } 
+            else { updatePaletteColors(); }
+        }
+
+        window.markForReview = function() {
+            qStatus[currentQuestion] = 3; 
+            if (currentQuestion < questions.length - 1) { showQuestion(currentQuestion + 1); } 
+            else { updatePaletteColors(); }
+        }
+
+        window.clearResponse = function() {
+            userAnswers[currentQuestion] = null;
+            qStatus[currentQuestion] = 1; 
+            showQuestion(currentQuestion); 
+        }
+
+        window.prevQuestion = function() {
+            if (currentQuestion > 0) { showQuestion(currentQuestion - 1); }
+        }
+
+        window.jumpToQuestion = function(index) {
+            if(userAnswers[currentQuestion] !== null && qStatus[currentQuestion] !== 3) { qStatus[currentQuestion] = 2; } 
+            else if (qStatus[currentQuestion] !== 3) { qStatus[currentQuestion] = 1; }
+            showQuestion(index);
+        }
+
+        function updatePaletteColors() {
+            let answered = 0, notAnswered = 0, notVisited = 0, review = 0;
+            for (let i = 0; i < questions.length; i++) {
+                let btn = document.getElementById(`btnQ${i}`);
+                if (!btn) continue;
+                btn.className = "q-btn"; 
+                if (i === currentQuestion) { btn.style.border = "3px solid #000"; } 
+                else { btn.style.border = "1px solid #ccc"; }
+
+                if (qStatus[i] === 0) { btn.classList.add("bg-not-visited"); notVisited++; }
+                else if (qStatus[i] === 1) { btn.classList.add("bg-not-answered"); notAnswered++; }
+                else if (qStatus[i] === 2) { btn.classList.add("bg-answered"); answered++; }
+                else if (qStatus[i] === 3) { btn.classList.add("bg-review"); review++; }
+            }
+            document.getElementById("cntAnswered").innerText = answered;
+            document.getElementById("cntNotAnswered").innerText = notAnswered;
+            document.getElementById("cntNotVisited").innerText = notVisited;
+            document.getElementById("cntReview").innerText = review;
+        }
+
+        function updateLegendCounts() { updatePaletteColors(); }
+
+        // --- 5. Timer Logic ---
+        let totalSeconds = 110 * 60; 
+        let timerBox = document.getElementById("timerBox");
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                let minutes = Math.floor(totalSeconds / 60);
+                let seconds = totalSeconds % 60;
+                document.getElementById("time").innerText = `${minutes < 10 ? '0'+minutes : minutes}:${seconds < 10 ? '0'+seconds : seconds}`;
+
+                if(totalSeconds <= 300) { timerBox.style.background = "#c0392b"; } 
+                if(totalSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    alert("समय समाप्त! आपका मॉक टेस्ट ऑटो-सबमिट हो रहा है।");
+                    processResult();
+                }
+                totalSeconds--;
+            }, 1000);
+        }
+
+        window.confirmSubmit = function() {
+            let answeredCount = qStatus.filter(s => s === 2).length;
+            if(confirm(`क्या आप वाकई टेस्ट सबमिट करना चाहते हैं?\n\nकुल प्रश्न: ${questions.length}\nउत्तर दिए: ${answeredCount}\nछूट गए: ${questions.length - answeredCount}`)) { 
+                processResult(); 
+            }
+        }
+
+        // --- 6. Process Result & Final Submission ---
+        function processResult() {
+            window.onbeforeunload = null; 
+            clearInterval(timerInterval);
+            window.speechSynthesis.cancel();
+            
+            let score = 0;
+            for (let i = 0; i < questions.length; i++) {
+                if (userAnswers[i] !== null && userAnswers[i] === questions[i].answer) { score++; }
+            }
+
+            document.getElementById("examInterface").style.display = "none";
+            let resScreen = document.getElementById("resultScreen");
+            resScreen.style.display = "block"; // Changed from flex to block to respect CSS overflow
+            document.getElementById("finalScore").innerText = score;
+            
+            let msgBox = document.getElementById("resultMessage");
+            let iconBox = document.getElementById("resultIcon");
+            let percent = (score / questions.length) * 100;
+
+            if(percent >= 65) { 
+                msgBox.innerText = "बधाई हो! आप इस मॉक टेस्ट में उत्तीर्ण (Pass) हो गए हैं।"; 
+                msgBox.style.color = "#28a745"; 
+                iconBox.className = "fas fa-check-circle"; iconBox.style.color = "#28a745";
+                
+                if(score >= 65) { document.getElementById("btnCertificate").style.display = "block"; }
+            } else { 
+                msgBox.innerText = "फेल (Fail)! सुधार की जरूरत है, कृपया दोबारा प्रयास करें।"; 
+                msgBox.style.color = "#d32f2f"; 
+                iconBox.className = "fas fa-times-circle"; iconBox.style.color = "#d32f2f";
+            }
+
+            fetch(googleScriptURL, {
+                method: 'POST', redirect: 'follow',
+                body: JSON.stringify({ action: "saveScore", username: studentID, score: score })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("savingText").innerText = "✔ रिज़ल्ट सफलतापूर्वक सेव हो गया!";
+                document.getElementById("savingText").style.color = "#28a745";
+                document.getElementById("viewAnswersBtn").style.display = "block";
+                document.getElementById("homeBtn").style.display = "block";
+                document.getElementById("restartBtn").style.display = "block";
+                document.getElementById("logoutBtn").style.display = "block";
+            })
+            .catch(error => {
+                document.getElementById("savingText").innerText = "सर्वर एरर: रिज़ल्ट सेव नहीं हो सका।";
+            });
+        }
+
+        // --- 7. Review Answers ---
+        function showReviewAnswers() {
+            document.getElementById("resultScreen").style.display = "none";
+            document.getElementById("reviewScreen").style.display = "flex";
+
+            const container = document.getElementById("reviewContentArea");
+            container.innerHTML = "";
+
+            questions.forEach((q, index) => {
+                let userAnsIndex = userAnswers[index];
+                let correctAnsIndex = q.answer;
+                let boxClass = "unattempted";
+                if (userAnsIndex === correctAnsIndex) boxClass = "correct";
+                else if (userAnsIndex !== null) boxClass = "wrong";
+
+                let html = `<div class="review-q-box ${boxClass}"><h4>Q${index + 1}: ${q.question}</h4><ul class="review-options">`;
+
+                q.options.forEach((opt, optIndex) => {
+                    let liClass = "", icon = "";
+                    if (optIndex === correctAnsIndex) { liClass = "correct-opt"; icon = `<i class="fas fa-check-circle"></i> `; } 
+                    else if (optIndex === userAnsIndex && userAnsIndex !== correctAnsIndex) { liClass = "wrong-opt"; icon = `<i class="fas fa-times-circle"></i> `; }
+                    html += `<li class="${liClass}">${icon}${opt}</li>`;
+                });
+
+                let statusText = (userAnsIndex === null) ? `<span style="color:#f0ad4e;">छोड़ दिया (Unattempted)</span>` : 
+                                 (userAnsIndex === correctAnsIndex) ? `<span style="color:#28a745;">सही उत्तर (Correct)</span>` : 
+                                 `<span style="color:#d32f2f;">गलत उत्तर (Wrong)</span>`;
+
+                html += `</ul><div class="review-status">स्थिति: ${statusText}</div></div>`;
+                container.innerHTML += html;
+            });
+        }
+
+        function backToResult() {
+            document.getElementById("reviewScreen").style.display = "none";
+            document.getElementById("resultScreen").style.display = "block";
+        }
+
+        // --- 8. Text-to-Speech (Audio) Feature ---
+        function speakQuestion() {
+            window.speechSynthesis.cancel();
+            let qText = document.getElementById("qText").innerText;
+            let optionsText = "";
+            let optLabels = document.querySelectorAll('.opt-lbl-text');
+            
+            optLabels.forEach((lbl, index) => { optionsText += " विकल्प " + (index + 1) + ", " + lbl.innerText + ". "; });
+            
+            let fullText = "प्रश्न: " + qText + ". " + optionsText;
+            let speech = new SpeechSynthesisUtterance();
+            speech.text = fullText;
+            speech.lang = (currentLang === "English") ? "en-IN" : "hi-IN";
+            speech.rate = 0.9;
+            window.speechSynthesis.speak(speech);
+        }
+
+        // --- 9. Certificate Generation Feature ---
+        function downloadCertificate() {
+            let finalScore = document.getElementById("finalScore").innerText;
+            let today = new Date();
+            let dateStr = today.getDate() + "/" + (today.getMonth() + 1) + "/" + today.getFullYear();
+
+            document.getElementById("certName").innerText = studentName;
+            document.getElementById("certScore").innerText = finalScore + " / 100";
+            document.getElementById("certDate").innerText = dateStr;
+
+            let element = document.getElementById("certificateTemplate");
+            element.style.display = "block"; 
+
+            let opt = {
+                margin:       0.5,
+                filename:     studentName.replace(/\s+/g, '_') + '_Aadhaar_Certificate.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.display = "none"; 
+            });
+        }
+    </script>
+</body>
+</html>
