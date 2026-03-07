@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>आधार ट्रेनिंग मॉड्यूल - ज्ञान कम्प्यूटर</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f0f2f5; color: #333; }
+        
+        .header { background-color: #1a73e8; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .header h2 { font-size: 22px; margin: 0; }
+        .btn-logout { background-color: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        
+        .container { max-width: 1000px; margin: 30px auto; padding: 20px; }
+        
+        /* Screens */
+        .screen { display: none; }
+        .active-screen { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Chapter Grid */
+        .chapter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .chapter-card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: 0.3s; position: relative; overflow: hidden; border-left: 5px solid #1a73e8; }
+        .chapter-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .chapter-card.locked { opacity: 0.7; border-left-color: #6c757d; cursor: not-allowed; }
+        .chapter-card.locked::after { content: '\f023'; font-family: "Font Awesome 5 Free"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 60px; color: rgba(0,0,0,0.1); }
+        .chapter-card h3 { color: #2c3e50; margin-bottom: 10px; font-size: 20px; }
+        .chapter-card p { color: #5f6368; font-size: 14px; margin-bottom: 15px; }
+        .btn-study { background: #1a73e8; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        
+        /* Study Mode */
+        .qa-box { background: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .study-q-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; margin-bottom: 10px; }
+        .qa-box h4 { color: #2c3e50; margin: 0; line-height: 1.4;}
+        .correct-ans { color: #28a745; font-weight: bold; background: #d4edda; padding: 10px; border-radius: 5px; border: 1px solid #c3e6cb; margin-top: 10px;}
+        .study-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .btn-test { background: #f0ad4e; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        /* Audio Button */
+        .btn-audio { background: #e8f0fe; color: #1a73e8; border: none; padding: 6px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.2s; white-space: nowrap;}
+        .btn-audio:hover { background: #d2e3fc; transform: scale(1.05); }
+
+        /* Test Mode */
+        .test-container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+        .timer-badge { background: #d32f2f; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; float: right; }
+        .option-lbl { display: block; padding: 12px; background: #f8f9fa; border: 1px solid #dee2e6; margin-bottom: 10px; border-radius: 5px; cursor: pointer; transition: 0.2s; }
+        .option-lbl:hover { background: #e9ecef; }
+        .option-lbl input { margin-right: 10px; transform: scale(1.2); }
+        .nav-btns { display: flex; justify-content: space-between; margin-top: 20px; }
+        .btn-nav { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; }
+        
+        /* Result */
+        .result-box { text-align: center; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .score-circle { width: 120px; height: 120px; background: #1a73e8; color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 36px; font-weight: bold; margin: 0 auto 20px; }
+
+        /* Screens & Loader */
+        .overlay-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f0f2f5; z-index: 2500; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        .lang-box { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 100%; }
+        .lang-select { width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e0e0e0; font-size: 16px; margin-bottom: 25px; outline: none; }
+        .btn-start { background-color: #28a745; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; width: 100%; transition: 0.3s; }
+        .btn-start:hover { background-color: #218838; }
+        
+        .loader { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.95); display:flex; justify-content:center; align-items:center; flex-direction:column; z-index: 3000; }
+        .spinner { border: 5px solid #f3f3f3; border-top: 5px solid #1a73e8; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Dashboard Button */
+        .btn-dashboard {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; border: none; padding: 12px 25px; border-radius: 5px; font-weight: bold;
+            cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3); display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-dashboard:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(118, 75, 162, 0.4); opacity: 0.9; }
+
+    </style>
+</head>
+<body>
+
+    <div class="overlay-screen" id="languageScreen">
+        <div class="lang-box">
+            <i class="fas fa-language" style="font-size: 50px; color: #1a73e8; margin-bottom: 20px;"></i>
+            <h2 style="color: #2c3e50; margin-bottom: 10px;">ट्रेनिंग की भाषा चुनें</h2>
+            <p style="color: #5f6368; margin-bottom: 25px;">Select Training Language</p>
+            
+            <select id="trainingLanguage" class="lang-select">
+                <option value="Hindi">हिंदी (Hindi)</option>
+                <option value="English">English</option>
+            </select>
+            
+            <button onclick="startFetchingQuestions()" class="btn-start"><i class="fas fa-play"></i> ट्रेनिंग शुरू करें / Start</button>
+            <br><br>
+            <a href="dashboard.html" style="color: #1a73e8; text-decoration: none; font-weight: bold;"><i class="fas fa-arrow-left"></i> डैशबोर्ड पर वापस जाएँ</a>
+        </div>
+    </div>
+
+    <div class="loader" id="loader" style="display: none;">
+        <div class="spinner"></div>
+        <h3 style="margin-top: 15px; color: #1a73e8;">चैप्टर लोड हो रहे हैं...</h3>
+    </div>
+
+    <div class="header">
+        <h2><i class="fas fa-book-reader"></i> आधार ट्रेनिंग मॉड्यूल</h2>
+        <div>
+            <span id="studentNameDisplay" style="margin-right: 15px; font-weight: bold;"></span>
+            
+            <button onclick="window.onbeforeunload = null; window.location.href='dashboard.html';" class="btn-dashboard" id="homeBtn">
+                <i class="fas fa-home"></i> डैशबोर्ड पर जाएँ
+            </button>
+
+            <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> बाहर निकलें</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="screenChapters" class="screen">
+            <h3 style="margin-bottom: 20px; color: #2c3e50;"><i class="fas fa-list"></i> प्रशिक्षण अध्याय (Chapters) चुनें</h3>
+            <div class="chapter-grid" id="chapterGrid"></div>
+        </div>
+
+        <div id="screenStudy" class="screen">
+            <div class="study-header">
+                <button onclick="showScreen('screenChapters')" class="btn-nav" style="background: #6c757d;"><i class="fas fa-arrow-left"></i> वापस जाएँ</button>
+                <h3 id="studyChapterTitle" style="color: #1a73e8;">अध्याय 1</h3>
+                <button onclick="startChapterTest()" class="btn-test"><i class="fas fa-edit"></i> चैप्टर टेस्ट दें (10 Marks)</button>
+            </div>
+            <div id="studyContent"></div>
+        </div>
+
+        <div id="screenTest" class="screen">
+            <div class="test-container">
+                <div class="timer-badge"><i class="fas fa-clock"></i> <span id="time">10:00</span></div>
+                <h3 id="testChapterTitle" style="margin-bottom: 20px; color: #1a73e8; border-bottom: 2px solid #eee; padding-bottom: 10px;"></h3>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h4 style="color: #5f6368; margin: 0;">प्रश्न <span id="qNum">1</span>/10</h4>
+                    <button onclick="speakTestQuestion()" class="btn-audio"><i class="fas fa-volume-up"></i> <span id="txtListenBtn">सुनें</span></button>
+                </div>
+                
+                <h3 id="testQuestion" style="margin-bottom: 20px;"></h3>
+                <div id="testOptions"></div>
+                
+                <div class="nav-btns">
+                    <button onclick="prevQ()" class="btn-nav" style="background: #6c757d;" id="btnPrev"><i class="fas fa-chevron-left"></i> पिछला</button>
+                    <button onclick="nextQ()" class="btn-nav" style="background: #1a73e8;" id="btnNext">अगला <i class="fas fa-chevron-right"></i></button>
+                    <button onclick="submitTest()" class="btn-nav" style="background: #28a745; display: none;" id="btnSubmit"><i class="fas fa-paper-plane"></i> टेस्ट सबमिट करें</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="screenResult" class="screen">
+            <div class="result-box">
+                <i id="resIcon" class="fas fa-check-circle" style="font-size: 60px; color: #28a745; margin-bottom: 15px;"></i>
+                <h2 id="resTitle" style="margin-bottom: 15px;">टेस्ट समाप्त!</h2>
+                <div class="score-circle"><span id="resScore">0</span>/10</div>
+                <h3 id="resMessage" style="margin-bottom: 25px;"></h3>
+                
+                <button onclick="showScreen('screenChapters')" class="btn-nav" style="background: #1a73e8; padding: 12px 30px; font-size: 16px;"><i class="fas fa-list"></i> अध्यायों पर वापस जाएँ</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 👇 अपना Web App URL यहाँ डालें 👇
+        const googleScriptURL = "https://script.google.com/macros/s/AKfycbxuUL6GRkOTyB6s6a4c5aYf-qybA8plvMXIismC-5Du0onqFbPXLb3__qJjwrvN-sM_GQ/exec";
+        
+        let allQuestions = [];
+        let currentStudyQuestions = []; // Study mode ke liye current questions
+        let currentChapterNum = 1;
+        let testQuestions = [];
+        let testAnswers = [];
+        let currentQIndex = 0;
+        let timerInterval;
+        let currentLang = "Hindi";
+        
+        const chapterNames = {
+            "Hindi": {
+                "1": "यूआईडीएआई और आधार का परिचय", "2": "रजिस्ट्रार, नामांकन एजेंसियां और कर्मचारी",
+                "3": "ऑन-बोर्डिंग नामांकन एजेंसी और कर्मचारी", "4": "आधार नामांकन / अद्यतन प्रक्रिया",
+                "5": "जनसांख्यिकीय और बायोमेट्रिक विवरण कैप्चर करना", "6": "अपवाद प्रबंधन (Exception Handling)",
+                "7": "नामांकन की गुणवत्ता के लिए दिशानिर्देश", "8": "अपराध और दंड",
+                "9": "ग्राहक संतुष्टि और धोखाधड़ी से बचाव"
+            },
+            "English": {
+                "1": "Introduction to UIDAI and Aadhaar", "2": "Registrars, Enroling Agencies and Enrolment Staff",
+                "3": "On-boarding Enrolment Agency and Staff", "4": "Aadhaar Enrolment / Update Process",
+                "5": "Capturing Demographic and Biometric Details", "6": "Exception Handling",
+                "7": "Guidelines for Enrolment Quality", "8": "Offences and Penalties",
+                "9": "Customer Satisfaction and Avoiding Fraud"
+            }
+        };
+
+        // Security Scripts
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () { history.go(1); alert("सुरक्षा चेतावनी: परीक्षा के दौरान 'Back' बटन का उपयोग वर्जित है!"); };
+        document.addEventListener('keydown', function (e) {
+            if (e.which === 116 || ((e.ctrlKey || e.metaKey) && e.which === 82) || (e.altKey && e.which === 37)) {
+                e.preventDefault(); alert("Security Alert: Exam ke dauran Refresh/Back karna mana hai!");
+            }
+        });
+        window.onbeforeunload = function() { return "क्या आप वाकई परीक्षा छोड़ना चाहते हैं? आपका अनसेव्ड डेटा खो सकता है।"; };
+
+        window.onload = function() {
+            let studentName = localStorage.getItem("studentName");
+            if(!studentName) {
+                alert("कृपया पहले लॉगिन करें!");
+                window.location.replace("login.html");
+                return;
+            }
+            document.getElementById("studentNameDisplay").innerText = "नमस्ते, " + studentName;
+        };
+
+        function startFetchingQuestions() {
+            currentLang = document.getElementById("trainingLanguage").value;
+            document.getElementById("txtListenBtn").innerText = (currentLang === "English") ? "Listen" : "सुनें";
+            
+            document.getElementById("languageScreen").style.display = "none";
+            document.getElementById("loader").style.display = "flex";
+
+            fetch(googleScriptURL + "?action=getQuestions&module=training&lang=" + currentLang + "&t=" + new Date().getTime())
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === "success" && data.data.length > 0) {
+                    allQuestions = data.data;
+                    renderChapters();
+                    document.getElementById("loader").style.display = "none";
+                    showScreen("screenChapters"); 
+                } else {
+                    document.getElementById("loader").style.display = "none";
+                    document.getElementById("languageScreen").style.display = "flex";
+                    alert("इस भाषा में ट्रेनिंग प्रश्न उपलब्ध नहीं हैं! कृपया एडमिन से संपर्क करें।");
+                }
+            })
+            .catch(err => {
+                document.getElementById("loader").style.display = "none";
+                document.getElementById("languageScreen").style.display = "flex";
+                alert("इंटरनेट समस्या! प्रश्न लोड नहीं हो सके।");
+                console.error(err);
+            });
+        }
+
+        function getUnlockedChapters() {
+            return JSON.parse(localStorage.getItem("unlockedChapters")) || [1]; 
+        }
+
+        function renderChapters() {
+            const grid = document.getElementById("chapterGrid");
+            grid.innerHTML = "";
+            let unlocked = getUnlockedChapters();
+
+            for(let i = 1; i <= 9; i++) {
+                let isLocked = !unlocked.includes(i);
+                let lockClass = isLocked ? "locked" : "";
+                let lockAlert = currentLang === "English" ? `alert('Pass Chapter ${i-1} test with 70% to unlock!')` : `alert('पहले अध्याय ${i-1} का टेस्ट 70% अंकों के साथ पास करें!')`;
+                let onClick = isLocked ? lockAlert : `openStudyMode(${i})`;
+                let title = chapterNames[currentLang][i.toString()] || `Chapter ${i}`;
+                let chapterText = currentLang === "English" ? "Chapter" : "अध्याय";
+                let btnText = currentLang === "English" ? "Start Study <i class='fas fa-arrow-right'></i>" : "पढ़ाई शुरू करें <i class='fas fa-arrow-right'></i>";
+                
+                grid.innerHTML += `
+                    <div class="chapter-card ${lockClass}" onclick="${onClick}">
+                        <h3>${chapterText} ${i}</h3>
+                        <p>${title}</p>
+                        ${isLocked ? '<span style="color:#d32f2f; font-weight:bold;"><i class="fas fa-lock"></i> Locked</span>' : `<button class="btn-study">${btnText}</button>`}
+                    </div>
+                `;
+            }
+        }
+
+        function openStudyMode(chapNum) {
+            currentChapterNum = chapNum;
+            let chapterText = currentLang === "English" ? "Chapter" : "अध्याय";
+            document.getElementById("studyChapterTitle").innerText = `${chapterText} ${chapNum}: ` + (chapterNames[currentLang][chapNum] || "");
+            
+            currentStudyQuestions = allQuestions.filter(q => q.chapter == chapNum);
+            
+            if(currentStudyQuestions.length === 0) {
+                let msg = currentLang === "English" ? "No questions available in this chapter." : "इस अध्याय में अभी कोई प्रश्न उपलब्ध नहीं है।";
+                alert(msg); return;
+            }
+
+            let html = "";
+            let btnListenText = currentLang === "English" ? "Listen" : "सुनें";
+            
+            currentStudyQuestions.forEach((q, index) => {
+                let correctOpt = q.options[q.answer];
+                let ansText = currentLang === "English" ? "Correct Answer" : "सही उत्तर";
+                
+                html += `
+                    <div class="qa-box">
+                        <div class="study-q-header">
+                            <h4>Q${index + 1}: <span id="studyQText_${index}">${q.question}</span></h4>
+                            <button onclick="speakStudyQuestion(${index})" class="btn-audio"><i class="fas fa-volume-up"></i> ${btnListenText}</button>
+                        </div>
+                        <p class="correct-ans"><i class="fas fa-check-circle"></i> ${ansText}: <span id="studyAnsText_${index}">${correctOpt}</span></p>
+                    </div>
+                `;
+            });
+            
+            document.getElementById("studyContent").innerHTML = html;
+            showScreen("screenStudy");
+        }
+
+        // 👉 Audio Function For Study Mode
+        function speakStudyQuestion(index) {
+            window.speechSynthesis.cancel();
+            let qText = document.getElementById(`studyQText_${index}`).innerText;
+            let ansText = document.getElementById(`studyAnsText_${index}`).innerText;
+            
+            let fullText = (currentLang === "English") ? 
+                           `Question: ${qText}. Correct Answer is: ${ansText}` : 
+                           `प्रश्न: ${qText}. इसका सही उत्तर है: ${ansText}`;
+                           
+            let speech = new SpeechSynthesisUtterance();
+            speech.text = fullText;
+            speech.lang = (currentLang === "English") ? "en-IN" : "hi-IN";
+            speech.rate = 0.9;
+            window.speechSynthesis.speak(speech);
+        }
+
+        function startChapterTest() {
+            window.speechSynthesis.cancel(); // Stop audio if going to test
+            let chapQuestions = allQuestions.filter(q => q.chapter == currentChapterNum);
+            let shuffled = chapQuestions.sort(() => 0.5 - Math.random());
+            testQuestions = shuffled.slice(0, 10);
+            
+            if(testQuestions.length < 10) {
+                alert(currentLang === "English" ? "Need at least 10 questions for the test." : "टेस्ट के लिए कम से कम 10 प्रश्न होने चाहिए।");
+                return;
+            }
+
+            testAnswers = new Array(10).fill(null);
+            currentQIndex = 0;
+            
+            let chapterText = currentLang === "English" ? "Chapter" : "अध्याय";
+            let testText = currentLang === "English" ? "Practice Test" : "प्रैक्टिस टेस्ट";
+            document.getElementById("testChapterTitle").innerText = `${chapterText} ${currentChapterNum} - ${testText}`;
+            
+            showScreen("screenTest");
+            loadTestQuestion();
+            startTimer(10 * 60); 
+        }
+
+        function loadTestQuestion() {
+            window.speechSynthesis.cancel(); // Stop previous audio when next question loads
+            document.getElementById("qNum").innerText = currentQIndex + 1;
+            let q = testQuestions[currentQIndex];
+            document.getElementById("testQuestion").innerText = q.question;
+            
+            let optHtml = "";
+            q.options.forEach((opt, i) => {
+                let isChecked = (testAnswers[currentQIndex] === i) ? "checked" : "";
+                optHtml += `
+                    <label class="option-lbl">
+                        <input type="radio" name="tOpt" value="${i}" ${isChecked} onchange="testAnswers[currentQIndex]=${i}"> ${opt}
+                    </label>
+                `;
+            });
+            document.getElementById("testOptions").innerHTML = optHtml;
+
+            document.getElementById("btnPrev").style.visibility = (currentQIndex === 0) ? "hidden" : "visible";
+            
+            if(currentQIndex === 9) {
+                document.getElementById("btnNext").style.display = "none";
+                document.getElementById("btnSubmit").style.display = "inline-block";
+            } else {
+                document.getElementById("btnNext").style.display = "inline-block";
+                document.getElementById("btnSubmit").style.display = "none";
+            }
+            
+            // Auto update buttons text
+            document.getElementById("btnPrev").innerHTML = currentLang === "English" ? '<i class="fas fa-chevron-left"></i> Prev' : '<i class="fas fa-chevron-left"></i> पिछला';
+            document.getElementById("btnNext").innerHTML = currentLang === "English" ? 'Next <i class="fas fa-chevron-right"></i>' : 'अगला <i class="fas fa-chevron-right"></i>';
+            document.getElementById("btnSubmit").innerHTML = currentLang === "English" ? '<i class="fas fa-paper-plane"></i> Submit' : '<i class="fas fa-paper-plane"></i> टेस्ट सबमिट करें';
+        }
+
+        // 👉 Audio Function For Test Mode
+        function speakTestQuestion() {
+            window.speechSynthesis.cancel();
+            let q = testQuestions[currentQIndex];
+            let optionsText = "";
+            
+            q.options.forEach((opt, i) => {
+                optionsText += (currentLang === "English") ? ` Option ${i + 1}, ${opt}. ` : ` विकल्प ${i + 1}, ${opt}. `;
+            });
+            
+            let fullText = (currentLang === "English") ? `Question: ${q.question}. ${optionsText}` : `प्रश्न: ${q.question}. ${optionsText}`;
+                           
+            let speech = new SpeechSynthesisUtterance();
+            speech.text = fullText;
+            speech.lang = (currentLang === "English") ? "en-IN" : "hi-IN";
+            speech.rate = 0.9;
+            window.speechSynthesis.speak(speech);
+        }
+
+        function prevQ() { if(currentQIndex > 0) { currentQIndex--; loadTestQuestion(); } }
+        function nextQ() { if(currentQIndex < 9) { currentQIndex++; loadTestQuestion(); } }
+
+        function startTimer(seconds) {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                let m = Math.floor(seconds / 60);
+                let s = seconds % 60;
+                document.getElementById("time").innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+                if(seconds <= 0) { clearInterval(timerInterval); submitTest(); }
+                seconds--;
+            }, 1000);
+        }
+
+        function submitTest() {
+            clearInterval(timerInterval);
+            window.speechSynthesis.cancel(); // Stop audio on submit
+            
+            let score = 0;
+            testQuestions.forEach((q, i) => {
+                if(testAnswers[i] === q.answer) score++;
+            });
+
+            document.getElementById("resScore").innerText = score;
+            
+            if(score >= 7) {
+                document.getElementById("resIcon").className = "fas fa-trophy";
+                document.getElementById("resIcon").style.color = "#f0ad4e";
+                document.getElementById("resTitle").innerText = currentLang === "English" ? "Congratulations! You Passed." : "बधाई हो! आप पास हो गए।";
+                document.getElementById("resMessage").innerText = currentLang === "English" ? "Next Chapter has been unlocked!" : "अगला अध्याय (Chapter) अनलॉक कर दिया गया है!";
+                document.getElementById("resMessage").style.color = "#28a745";
+                
+                let unlocked = getUnlockedChapters();
+                if(!unlocked.includes(currentChapterNum + 1) && currentChapterNum < 9) {
+                    unlocked.push(currentChapterNum + 1);
+                    localStorage.setItem("unlockedChapters", JSON.stringify(unlocked));
+                }
+            } else {
+                document.getElementById("resIcon").className = "fas fa-times-circle";
+                document.getElementById("resIcon").style.color = "#d32f2f";
+                document.getElementById("resTitle").innerText = currentLang === "English" ? "Test Failed!" : "टेस्ट फेल!";
+                document.getElementById("resMessage").innerText = currentLang === "English" ? "You need at least 7 marks (70%) to unlock the next chapter." : "अगले अध्याय में जाने के लिए कम से कम 7 अंक (70%) आवश्यक हैं।";
+                document.getElementById("resMessage").style.color = "#d32f2f";
+            }
+            
+            renderChapters();
+            showScreen("screenResult");
+        }
+
+        function showScreen(id) {
+            window.speechSynthesis.cancel(); // Stop audio when switching screens
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
+            document.getElementById(id).classList.add('active-screen');
+        }
+
+        function logout() {
+            if(confirm("क्या आप वाकई अपनी आईडी से बाहर (Logout) जाना चाहते हैं?")) {
+                window.speechSynthesis.cancel();
+                localStorage.removeItem("studentName");
+                localStorage.removeItem("studentID");
+                window.onbeforeunload = null;
+                window.location.replace("login.html");
+            }
+        }
+    </script>
+</body>
+</html>
