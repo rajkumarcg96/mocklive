@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>पार्टनर डैशबोर्ड - ज्ञान कम्प्यूटर</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #f0f2f5; color: #333; display: flex; flex-direction: column; min-height: 100vh;}
+        
+        .header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .container { max-width: 900px; margin: 40px auto; padding: 20px; width: 100%; flex: 1;}
+        
+        /* Forms Area */
+        .auth-box { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; max-width: 450px; margin: 50px auto; display: none; }
+        .input-field { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #eee; border-radius: 8px; font-size: 15px; outline: none; transition: 0.3s;}
+        .input-field:focus { border-color: #10b981; }
+        .btn-auth { background: #10b981; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px;}
+        .btn-auth:hover { background: #059669; }
+        .switch-link { color: #1a73e8; cursor: pointer; margin-top: 20px; display: inline-block; font-weight: bold; text-decoration: underline;}
+
+        /* Dashboard Grid */
+        .dashboard-area { display: none; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; border-bottom: 5px solid; position: relative;}
+        .stat-card h3 { color: #5f6368; font-size: 16px; margin-bottom: 10px; }
+        .stat-card h1 { color: #2c3e50; font-size: 36px; margin: 0; transition: all 0.3s ease;}
+        
+        .promo-box { background: linear-gradient(135deg, #1a73e8 0%, #764ba2 100%); padding: 30px; border-radius: 15px; color: white; text-align: center; box-shadow: 0 10px 20px rgba(26, 115, 232, 0.3); }
+        .btn-action { background: white; color: #1a73e8; border: none; padding: 12px 25px; border-radius: 30px; font-weight: bold; font-size: 15px; cursor: pointer; margin: 10px 5px; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s;}
+        .btn-action:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+        /* Tables */
+        .table-container { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-top: 30px; overflow-x: auto;}
+        .student-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;}
+        .student-table th, .student-table td { padding: 12px 15px; border-bottom: 1px solid #eee; }
+        .student-table th { background: #f8f9fa; color: #5f6368; font-weight: bold; white-space: nowrap;}
+        .student-table tr:hover { background: #f8f9fa; }
+        .comm-badge { background: #d4edda; color: #155724; padding: 5px 10px; border-radius: 20px; font-weight: bold; font-size: 13px;}
+        
+        .loading-text { text-align: center; font-size: 18px; color: #666; margin-top: 100px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2><i class="fas fa-handshake"></i> B2B पार्टनर पोर्टल</h2>
+        <div id="logoutBtnArea" style="display: none; align-items: center; gap: 10px;">
+            <button onclick="refreshDashboard()" style="background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer;" title="डेटा अपडेट करें">
+                <i class="fas fa-sync-alt" id="refreshIcon"></i>
+            </button>
+            <button onclick="logoutAgent()" style="background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer;">लॉगआउट</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="initialLoading" class="loading-text"><i class="fas fa-spinner fa-spin"></i> डैशबोर्ड लोड हो रहा है...</div>
+
+        <div class="auth-box" id="loginBox">
+            <i class="fas fa-user-shield" style="font-size: 50px; color: #10b981; margin-bottom: 15px;"></i>
+            <h2 style="color: #2c3e50;">एजेंट लॉगिन</h2>
+            <p style="color: #6c757d; font-size: 14px; margin-bottom: 15px;">अपने डैशबोर्ड तक पहुँचने के लिए लॉगिन करें</p>
+            <input type="text" id="loginId" class="input-field" placeholder="User ID" style="text-transform: uppercase;">
+            <input type="password" id="loginPass" class="input-field" placeholder="Password">
+            <button class="btn-auth" id="btnLogin" onclick="loginAgent()">लॉगिन करें <i class="fas fa-sign-in-alt"></i></button>
+            <span class="switch-link" onclick="toggleForms('register')">नया एजेंट अकाउंट बनाएं</span>
+        </div>
+
+        <div class="auth-box" id="registerBox">
+            <i class="fas fa-user-plus" style="font-size: 40px; color: #1a73e8; margin-bottom: 15px;"></i>
+            <h2 style="color: #2c3e50;">फ्री पार्टनर रजिस्ट्रेशन</h2>
+            <input type="text" id="regName" class="input-field" placeholder="आपका या सेंटर का नाम">
+            <input type="number" id="regMobile" class="input-field" placeholder="मोबाइल नंबर">
+            <input type="text" id="regBank" class="input-field" placeholder="बैंक A/C नंबर और IFSC कोड (पेमेंट के लिए)">
+            <input type="text" id="regId" class="input-field" placeholder="User ID बनाएं" style="text-transform: uppercase;">
+            <input type="password" id="regPass" class="input-field" placeholder="पासवर्ड बनाएं">
+            <button class="btn-auth" style="background:#1a73e8;" id="btnRegister" onclick="registerAgent()">अकाउंट बनाएं <i class="fas fa-check-circle"></i></button>
+            <span class="switch-link" onclick="toggleForms('login')">लॉगिन करें</span>
+        </div>
+
+        <div class="dashboard-area" id="dashboardArea">
+            <h2 style="margin-bottom: 25px; color: #2c3e50;">नमस्ते, <span id="agentName" style="color: #10b981;"></span> 👋</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card" style="border-color: #1a73e8;">
+                    <h3>कुल एडमिशन</h3>
+                    <h1 id="statStudents">0</h1>
+                </div>
+                <div class="stat-card" style="border-color: #6c757d;">
+                    <h3>प्रोग्रेस में (Pending)</h3>
+                    <h1 id="statProcessing" style="color: #6c757d;">₹0</h1>
+                </div>
+                <div class="stat-card" style="border-color: #f59e0b; padding-bottom: 20px; background: #fffdf5;">
+                    <h3>उपलब्ध बैलेंस</h3>
+                    <h1 id="statBalance" style="margin-bottom: 15px; color:#d93025;">₹0</h1>
+                    
+                    <button id="withdrawBtn" onclick="requestWithdrawal()" style="display:none; background:#f59e0b; color:white; border:none; padding:10px 15px; border-radius:8px; cursor:pointer; width:100%; font-weight:bold; transition: 0.3s;">Payout Request भेजें <i class="fas fa-paper-plane"></i></button>
+                    <small id="withdrawMsg" style="color:#888; font-size:12px; display:block;">(न्यूनतम पेआउट: ₹200)</small>
+                </div>
+            </div>
+
+            <div class="promo-box">
+                <h2>एडमिशन करें या शेयर करें!</h2>
+                <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px; margin: 15px 0; font-size: 20px; font-weight: bold;">
+                    आपका कोड: <span id="displayPromoCode" style="color: #ffd700;">---</span>
+                </div>
+                <button onclick="registerStudentNow()" class="btn-action" style="color: #d93025;"><i class="fas fa-user-edit"></i> अभी छात्र का फॉर्म भरें</button>
+                <button onclick="shareLink()" class="btn-action" style="color: #28a745;"><i class="fab fa-whatsapp"></i> WhatsApp पर भेजें</button>
+            </div>
+
+            <div class="table-container" style="border-top: 4px solid #f59e0b;">
+                <h3 style="color: #2c3e50; margin-bottom: 15px;"><i class="fas fa-history"></i> Withdrawal History</h3>
+                <table class="student-table">
+                    <thead>
+                        <tr>
+                            <th>Req ID</th>
+                            <th>तारीख</th>
+                            <th>राशि</th>
+                            <th>स्टेटस</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payoutListBody">
+                        </tbody>
+                </table>
+            </div>
+
+            <div class="table-container">
+                <h3 style="color: #2c3e50; margin-bottom: 15px;"><i class="fas fa-list-alt"></i> आपके द्वारा जोड़े गए छात्र</h3>
+                <table class="student-table">
+                    <thead>
+                        <tr>
+                            <th>तारीख</th>
+                            <th>छात्र का नाम</th>
+                            <th>पैकेज</th>
+                            <th>कमीशन (20%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentListBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 👉 अपना Web App URL यहाँ डालें
+        const scriptURL = "https://script.google.com/macros/s/AKfycbxuUL6GRkOTyB6s6a4c5aYf-qybA8plvMXIismC-5Du0onqFbPXLb3__qJjwrvN-sM_GQ/exec"; 
+
+        window.onload = function() {
+            let savedCode = localStorage.getItem("agentCode");
+            let savedPass = localStorage.getItem("agentPass");
+            
+            if(savedCode && savedPass) {
+                document.getElementById("initialLoading").style.display = "block";
+                fetchAgentData(savedCode, savedPass, false);
+            } else {
+                document.getElementById("loginBox").style.display = "block";
+            }
+            
+            setInterval(() => {
+                let code = localStorage.getItem("agentCode");
+                let pass = localStorage.getItem("agentPass");
+                if(code && pass && document.getElementById("dashboardArea").style.display === "block") {
+                    fetchAgentData(code, pass, true);
+                }
+            }, 30000);
+        };
+
+        function toggleForms(type) {
+            document.getElementById("loginBox").style.display = type === 'login' ? 'block' : 'none';
+            document.getElementById("registerBox").style.display = type === 'register' ? 'block' : 'none';
+        }
+
+        function refreshDashboard() {
+            let code = localStorage.getItem("agentCode");
+            let pass = localStorage.getItem("agentPass");
+            if(code && pass) {
+                document.getElementById("refreshIcon").classList.add("fa-spin");
+                fetchAgentData(code, pass, true);
+            }
+        }
+
+        function loginAgent() {
+            let code = document.getElementById("loginId").value.trim().toUpperCase();
+            let pass = document.getElementById("loginPass").value;
+            if(!code || !pass) { alert("ID और पासवर्ड डालें!"); return; }
+            document.getElementById("btnLogin").innerText = "लॉगिन हो रहा है...";
+            fetchAgentData(code, pass, false);
+        }
+
+        function registerAgent() {
+            let name = document.getElementById("regName").value;
+            let mobile = document.getElementById("regMobile").value;
+            let bank = document.getElementById("regBank").value; 
+            let id = document.getElementById("regId").value.trim().toUpperCase();
+            let pass = document.getElementById("regPass").value;
+
+            if(!name || !mobile || !bank || !id || !pass) { alert("सभी जानकारी भरें!"); return; }
+            document.getElementById("btnRegister").innerText = "प्रोसेसिंग...";
+
+            fetch(scriptURL, {
+                method: 'POST', body: JSON.stringify({ action: "registerAgent", name: name, mobile: mobile, bankDetails: bank, agentId: id, password: pass })
+            }).then(res => res.json()).then(data => {
+                document.getElementById("btnRegister").innerHTML = 'अकाउंट बनाएं <i class="fas fa-check-circle"></i>';
+                if(data.status === "success") { 
+                    alert("अकाउंट बन गया! अब आप लॉगिन कर सकते हैं।"); 
+                    document.getElementById("loginId").value = id;
+                    document.getElementById("loginPass").value = pass;
+                    toggleForms('login'); 
+                } else { alert(data.message); }
+            }).catch(e => { alert("एरर!"); document.getElementById("btnRegister").innerHTML = 'अकाउंट बनाएं'; });
+        }
+
+        // 👉 Payout Request Function
+        function requestWithdrawal() {
+            let code = localStorage.getItem("agentCode");
+            let btn = document.getElementById("withdrawBtn");
+            btn.innerText = "अनुरोध भेजा जा रहा है...";
+            btn.disabled = true;
+
+            fetch(scriptURL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "requestWithdrawal", agentCode: code })
+            }).then(res => res.json()).then(data => {
+                alert(data.message);
+                btn.innerHTML = 'Payout Request भेजें <i class="fas fa-paper-plane"></i>';
+                btn.disabled = false;
+                // पैसे तुरंत कटें और डैशबोर्ड अपडेट हो जाए इसके लिए दोबारा डेटा मंगा लें:
+                let pass = localStorage.getItem("agentPass");
+                fetchAgentData(code, pass, true);
+            }).catch(e => { 
+                alert("नेटवर्क एरर! कृपया फिर से प्रयास करें।"); 
+                btn.innerHTML = 'Payout Request भेजें <i class="fas fa-paper-plane"></i>';
+                btn.disabled = false; 
+            });
+        }
+
+        function fetchAgentData(code, pass, isBackground) {
+            fetch(scriptURL + "?action=getAgentData&agentCode=" + encodeURIComponent(code) + "&password=" + encodeURIComponent(pass))
+            .then(res => res.json()).then(data => {
+                
+                document.getElementById("initialLoading").style.display = "none";
+                if(!isBackground) document.getElementById("btnLogin").innerHTML = 'लॉगिन करें <i class="fas fa-sign-in-alt"></i>';
+                document.getElementById("refreshIcon").classList.remove("fa-spin"); 
+                
+                if(data.status === "success") {
+                    localStorage.setItem("agentCode", code);
+                    localStorage.setItem("agentPass", pass);
+                    
+                    document.getElementById("loginBox").style.display = "none";
+                    document.getElementById("registerBox").style.display = "none";
+                    document.getElementById("dashboardArea").style.display = "block";
+                    document.getElementById("logoutBtnArea").style.display = "flex";
+
+                    // 👉 अपडेटेड नंबर्स
+                    document.getElementById("agentName").innerText = data.data.name;
+                    document.getElementById("displayPromoCode").innerText = data.data.code;
+                    document.getElementById("statStudents").innerText = data.data.totalStudents;
+                    document.getElementById("statProcessing").innerText = "₹" + data.data.processingBalance; // प्रोग्रेस
+                    document.getElementById("statBalance").innerText = "₹" + data.data.availableBalance; // असली बैलेंस
+
+                    // 👉 Show/Hide Withdraw Button (अब Available Balance से चलेगा)
+                    if(data.data.availableBalance >= 200) {
+                        document.getElementById("withdrawBtn").style.display = "block";
+                        document.getElementById("withdrawMsg").style.display = "none";
+                    } else {
+                        document.getElementById("withdrawBtn").style.display = "none";
+                        document.getElementById("withdrawMsg").style.display = "block";
+                    }
+
+                    // 👉 Payout History Table Data
+                    let ptbody = document.getElementById("payoutListBody");
+                    ptbody.innerHTML = "";
+                    if(data.data.payoutHistory && data.data.payoutHistory.length > 0) {
+                        data.data.payoutHistory.forEach(p => {
+                            let bColor = p.status === "Pending" ? "#f59e0b" : "#28a745";
+                            ptbody.innerHTML += `<tr>
+                                <td style="font-family:monospace; color:#666;">${p.reqId}</td>
+                                <td>${p.date}</td>
+                                <td style="font-weight:bold;">₹${p.amount}</td>
+                                <td><span style="background:${bColor}20; color:${bColor}; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:bold;">${p.status}</span></td>
+                            </tr>`;
+                        });
+                    } else {
+                        ptbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#888; padding:20px;">कोई Payout Request नहीं है।</td></tr>`;
+                    }
+
+                    // 👉 Student List Table
+                    let tbody = document.getElementById("studentListBody");
+                    tbody.innerHTML = "";
+                    if(data.data.studentList && data.data.studentList.length > 0) {
+                        data.data.studentList.forEach(s => {
+                            tbody.innerHTML += `<tr>
+                                <td>${s.date}</td>
+                                <td style="font-weight:bold; color:#1a73e8;">${s.name}</td>
+                                <td>${s.package}</td>
+                                <td><span class="comm-badge">+ ₹${s.commission}</span></td>
+                            </tr>`;
+                        });
+                    } else {
+                        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#888; padding:20px;">अभी तक कोई एडमिशन नहीं हुआ है।</td></tr>`;
+                    }
+                } else { 
+                    if(!isBackground) alert(data.message); 
+                    logoutAgent();
+                }
+            }).catch(err => {
+                if(!isBackground) { alert("नेटवर्क त्रुटि!"); document.getElementById("btnLogin").innerHTML = 'लॉगिन करें'; }
+                document.getElementById("refreshIcon").classList.remove("fa-spin");
+            });
+        }
+
+        function registerStudentNow() {
+            let myCode = localStorage.getItem("agentCode");
+            window.open("registration.html?ref=" + myCode, "_blank");
+        }
+
+        function shareLink() {
+            let myCode = localStorage.getItem("agentCode");
+            let siteLink = "https://yourwebsite.com/registration.html?ref=" + myCode; 
+            let msg = `*आधार परीक्षा की तैयारी करें!* 🎯\nरजिस्ट्रेशन करें: ${siteLink}`;
+            window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent(msg), "_blank");
+        }
+
+        function logoutAgent() {
+            localStorage.clear();
+            location.reload();
+        }
+    </script>
+</body>
+</html>
