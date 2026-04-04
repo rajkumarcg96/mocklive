@@ -72,7 +72,10 @@
             <h2 style="color: #2c3e50;">फ्री पार्टनर रजिस्ट्रेशन</h2>
             <input type="text" id="regName" class="input-field" placeholder="आपका या सेंटर का नाम">
             <input type="number" id="regMobile" class="input-field" placeholder="मोबाइल नंबर">
-            <input type="text" id="regBank" class="input-field" placeholder="बैंक A/C नंबर और IFSC कोड (पेमेंट के लिए)">
+            
+            <input type="text" id="regBankAc" class="input-field" placeholder="बैंक अकाउंट नंबर (A/C)">
+            <input type="text" id="regIfsc" class="input-field" placeholder="IFSC कोड" style="text-transform: uppercase;">
+            
             <input type="text" id="regId" class="input-field" placeholder="User ID बनाएं" style="text-transform: uppercase;">
             <input type="password" id="regPass" class="input-field" placeholder="पासवर्ड बनाएं">
             <button class="btn-auth" style="background:#1a73e8;" id="btnRegister" onclick="registerAgent()">अकाउंट बनाएं <i class="fas fa-check-circle"></i></button>
@@ -189,18 +192,36 @@
             fetchAgentData(code, pass, false);
         }
 
+        // 👉 अपडेटेड: Bank A/C और IFSC को जोड़कर भेजने वाला फंक्शन
         function registerAgent() {
             let name = document.getElementById("regName").value;
             let mobile = document.getElementById("regMobile").value;
-            let bank = document.getElementById("regBank").value; 
+            let acNo = document.getElementById("regBankAc").value.trim();
+            let ifsc = document.getElementById("regIfsc").value.trim().toUpperCase();
             let id = document.getElementById("regId").value.trim().toUpperCase();
             let pass = document.getElementById("regPass").value;
 
-            if(!name || !mobile || !bank || !id || !pass) { alert("सभी जानकारी भरें!"); return; }
+            // चेक करें कि सभी बॉक्स भरे हैं
+            if(!name || !mobile || !acNo || !ifsc || !id || !pass) { 
+                alert("सभी जानकारी (A/C और IFSC सहित) भरें!"); 
+                return; 
+            }
+            
+            // दोनों को जोड़कर एक स्ट्रिंग बनाना
+            let finalBankDetails = "A/C: " + acNo + " | IFSC: " + ifsc;
+
             document.getElementById("btnRegister").innerText = "प्रोसेसिंग...";
 
             fetch(scriptURL, {
-                method: 'POST', body: JSON.stringify({ action: "registerAgent", name: name, mobile: mobile, bankDetails: bank, agentId: id, password: pass })
+                method: 'POST', 
+                body: JSON.stringify({ 
+                    action: "registerAgent", 
+                    name: name, 
+                    mobile: mobile, 
+                    bankDetails: finalBankDetails, // जुड़ा हुआ डेटा यहाँ भेज रहे हैं
+                    agentId: id, 
+                    password: pass 
+                })
             }).then(res => res.json()).then(data => {
                 document.getElementById("btnRegister").innerHTML = 'अकाउंट बनाएं <i class="fas fa-check-circle"></i>';
                 if(data.status === "success") { 
@@ -209,7 +230,10 @@
                     document.getElementById("loginPass").value = pass;
                     toggleForms('login'); 
                 } else { alert(data.message); }
-            }).catch(e => { alert("एरर!"); document.getElementById("btnRegister").innerHTML = 'अकाउंट बनाएं'; });
+            }).catch(e => { 
+                alert("एरर! नेटवर्क चेक करें।"); 
+                document.getElementById("btnRegister").innerHTML = 'अकाउंट बनाएं'; 
+            });
         }
 
         function requestWithdrawal() {
@@ -234,7 +258,6 @@
             });
         }
 
-        // 👉 Cache-Busting: Real-Time Data Update
         function fetchAgentData(code, pass, isBackground) {
             let uniqueTime = new Date().getTime(); 
             let finalUrl = scriptURL + "?action=getAgentData&agentCode=" + encodeURIComponent(code) + "&password=" + encodeURIComponent(pass) + "&t=" + uniqueTime;
