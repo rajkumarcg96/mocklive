@@ -101,7 +101,37 @@
             </div>
 
             <div class="loader" id="loader"><i class="fas fa-spinner fa-spin"></i> डेटा लोड हो रहा है...</div>
+          <button onclick="openAddModal()" style="background:#1a73e8; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:20px; margin-bottom:10px;">
+                <i class="fas fa-user-plus"></i> नया छात्र जोड़ें (Quick Reg)
+            </button>
 
+            <div id="addStudentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
+                <div style="background:white; padding:30px; border-radius:15px; width:90%; max-width:450px; position:relative;">
+                    <span onclick="closeAddModal()" style="position:absolute; top:15px; right:20px; cursor:pointer; font-size:24px; color:#333;">&times;</span>
+                    <h3 style="margin-bottom:20px; color:#1a73e8;"><i class="fas fa-user-plus"></i> त्वरित रजिस्ट्रेशन</h3>
+                    
+                    <input type="text" id="addName" placeholder="कैंडिडेट का नाम" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:5px;">
+                    <input type="number" id="addMobile" placeholder="मोबाइल नंबर" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:5px;">
+                    <input type="email" id="addEmail" placeholder="ईमेल आईडी" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:5px;">
+                    
+                    <label style="font-size:12px; color:#666; margin-bottom:5px; display:block;">पैकेज चुनें:</label>
+                    <select id="addPkg" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid #ccc; border-radius:5px;">
+                        <option value="Weekly (7 Days)">7 दिन (₹99)</option>
+                        <option value="Monthly (30 Days)">30 दिन (₹299)</option>
+                    </select>
+
+                    <label style="font-size:12px; color:#666; margin-bottom:5px; display:block;">पेमेंट का तरीका:</label>
+                    <select id="addPayMode" style="width:100%; padding:10px; margin-bottom:20px; border:1px solid #1a73e8; border-radius:5px; background:#f0f7ff;">
+                        <option value="SendLink">📱 ईमेल पर Payment Link भेजें</option>
+                        <option value="Cash">💵 कैश मिल गया (डायरेक्ट चालू करें)</option>
+                        <option value="AlreadyPaid">🔄 पेमेंट फंस गया था (ऑनलाइन पेड)</option>
+                    </select>
+
+                    <button id="addBtn" onclick="adminAddNewStudent()" style="width:100%; background:#28a745; color:white; border:none; padding:12px; border-radius:5px; font-weight:bold; cursor:pointer; transition:0.3s;">
+                        रजिस्ट्रेशन पूरा करें <i class="fas fa-check-circle"></i>
+                    </button>
+                </div>
+            </div>
             <div id="tabStudents" class="table-wrapper active">
                 <table id="studentsTable">
                     <thead>
@@ -388,6 +418,43 @@
                 location.reload(); 
             }
         }
-    </script>
+   function openAddModal() {
+            document.getElementById("addStudentModal").style.display = "flex";
+        }
+
+        function closeAddModal() {
+            document.getElementById("addStudentModal").style.display = "none";
+        }
+
+        function adminAddNewStudent() {
+            let name = document.getElementById("addName").value;
+            let mobile = document.getElementById("addMobile").value;
+            let email = document.getElementById("addEmail").value;
+            let pkg = document.getElementById("addPkg").value;
+            let payMode = document.getElementById("addPayMode").value;
+
+            if(!name || !mobile || !email) { alert("कृपया नाम, मोबाइल और ईमेल भरें!"); return; }
+
+            let btn = document.getElementById("addBtn");
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> प्रोसेसिंग...';
+            btn.disabled = true;
+
+            fetch(scriptURL, {
+                method: "POST",
+                body: JSON.stringify({ action: "adminAddStudent", adminPass: savedPass, name: name, mobile: mobile, email: email, pkg: pkg, payMode: payMode })
+            }).then(res => res.json()).then(data => {
+                if(data.status === "success") {
+                    alert("छात्र सफलतापूर्वक जुड़ गया! 🎉");
+                    document.getElementById("addName").value = "";
+                    document.getElementById("addMobile").value = "";
+                    document.getElementById("addEmail").value = "";
+                    closeAddModal();
+                    fetchData(); // टेबल अपडेट करें
+                } else { alert("Error: " + data.message); }
+                btn.innerHTML = 'रजिस्ट्रेशन पूरा करें <i class="fas fa-check-circle"></i>';
+                btn.disabled = false;
+            }).catch(e => { alert("Network Error"); btn.innerHTML = 'रजिस्ट्रेशन पूरा करें'; btn.disabled = false; });
+        }
+   </script>
 </body>
 </html>
