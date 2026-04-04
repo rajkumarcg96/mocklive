@@ -27,6 +27,10 @@
         .btn-login { background: #e8f0fe; color: #1a73e8 !important; padding: 8px 20px; border-radius: 25px; font-weight: bold; border: 2px solid transparent; transition: 0.3s; }
         .btn-login:hover { background: #1a73e8; color: white !important; }
 
+        /* --- नया: पार्टनर बटन --- */
+        .btn-partner-login { background: #2c3e50; color: white !important; padding: 8px 20px; border-radius: 25px; font-weight: bold; transition: 0.3s; }
+        .btn-partner-login:hover { background: #1a252f; transform: translateY(-2px); }
+
         /* --- हीरो सेक्शन --- */
         .hero {
             padding: 150px 50px 100px; display: flex; justify-content: space-between; align-items: center;
@@ -50,6 +54,11 @@
         .hero-image div { background: linear-gradient(135deg, #667eea, #764ba2); width: 100%; max-width: 500px; height: 400px; border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; display: inline-flex; justify-content: center; align-items: center; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
         .hero-image i { font-size: 150px; color: white; }
 
+        /* --- नया: पार्टनर सेक्शन --- */
+        .partner-section { margin: 50px auto; max-width: 1100px; background: white; border-radius: 15px; display: flex; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.08); flex-wrap: wrap; }
+        .partner-content { flex: 1; padding: 40px; min-width: 300px; }
+        .partner-bg { flex: 1; background: #e8f5e9; display: flex; align-items: center; justify-content: center; padding: 30px; min-width: 300px; }
+        
         /* --- फीचर्स/प्राइज सेक्शन --- */
         .prizes-section { padding: 80px 50px; background: #fff; text-align: center; }
         .section-title { font-size: 36px; color: #2c3e50; margin-bottom: 15px; font-weight: 800; }
@@ -105,18 +114,9 @@
         /* --- फ्री डेमो बटन इफ़ेक्ट --- */
         .btn-demo-pulse {
             background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 18px;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 10px 20px rgba(255, 65, 108, 0.4);
-            animation: pulse-animation 2s infinite;
-            transition: 0.3s;
+            color: white; padding: 15px 30px; border-radius: 30px; text-decoration: none;
+            font-weight: bold; font-size: 18px; display: inline-flex; align-items: center; gap: 10px;
+            box-shadow: 0 10px 20px rgba(255, 65, 108, 0.4); animation: pulse-animation 2s infinite; transition: 0.3s;
         }
         .btn-demo-pulse:hover { transform: scale(1.05); color: white; }
         
@@ -147,6 +147,17 @@
             40% { transform: translateY(-5px); }
             60% { transform: translateY(-3px); }
         }
+
+        /* --- नया: पार्टनर मोडल स्टाइल्स --- */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-box { background: white; padding: 35px; border-radius: 15px; width: 90%; max-width: 450px; position: relative; box-shadow: 0 15px 30px rgba(0,0,0,0.2); animation: slideDown 0.3s ease-out; }
+        @keyframes slideDown { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 25px; cursor: pointer; color: #888; transition: 0.3s; }
+        .close-btn:hover { color: #dc3545; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; font-size: 13px; color: #555; margin-bottom: 5px; font-weight: bold; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; outline: none; transition: 0.3s; }
+        .form-group input:focus { border-color: #28a745; }
     </style>
 </head>
 <body>
@@ -158,6 +169,7 @@
             <a href="#features">विशेषताएं</a>
             <a href="rules.html">नियम व शर्तें</a>
             <a href="login.html" class="btn-login"><i class="fas fa-sign-in-alt"></i> पोर्टल लॉगिन</a>
+            <a href="partner.html" class="btn-partner-login"><i class="fas fa-handshake"></i> पार्टनर लॉगिन</a>
         </div>
     </nav>
 
@@ -169,7 +181,7 @@
             <p><span class="highlight-text"><i class="fas fa-check-circle"></i> 100% सफलता की गारंटी | अध्याय-वार महत्वपूर्ण प्रश्न</span></p>
             
             <div class="hero-buttons">
-                <a href="registration.html" class="btn-primary"><i class="fas fa-user-plus"></i> रजिस्टर करें</a>
+                <a href="register.html" class="btn-primary"><i class="fas fa-user-plus"></i> रजिस्टर करें</a>
                 <a href="login.html" class="btn-secondary">लॉगिन</a>
                 <a href="demo.html" class="btn-demo-pulse">
                     <i class="fas fa-gift"></i> फ्री डेमो टेस्ट दें
@@ -178,6 +190,24 @@
         </div>
         <div class="hero-image">
             <div><i class="fas fa-fingerprint"></i></div> 
+        </div>
+    </section>
+
+    <section class="partner-section">
+        <div class="partner-content">
+            <h2 style="color: #28a745; margin-bottom: 15px; font-size: 28px;">हमारे पार्टनर बनें और पैसे कमाएं! 💸</h2>
+            <p style="color: #555; line-height: 1.6; margin-bottom: 20px;">ज्ञान कम्प्यूटर अकादमी के 'पार्टनर प्रोग्राम' से जुड़ें। अपने दोस्तों, CSC सेंटर के ग्राहकों या स्टूडेंट्स को हमारा कोर्स रेफ़र करें और हर रजिस्ट्रेशन पर सीधा <b>20% कमीशन</b> पाएं।</p>
+            <ul style="list-style: none; margin-bottom: 25px; color: #444; font-weight: bold; line-height: 1.8;">
+                <li><i class="fas fa-check-circle" style="color: #28a745; margin-right: 10px;"></i> 100% फ्री रजिस्ट्रेशन (कोई फीस नहीं)</li>
+                <li><i class="fas fa-check-circle" style="color: #28a745; margin-right: 10px;"></i> अपना खुद का पार्टनर कोड बनाएं</li>
+                <li><i class="fas fa-check-circle" style="color: #28a745; margin-right: 10px;"></i> सीधा अपने बैंक/UPI में पेआउट लें</li>
+            </ul>
+            <button onclick="openPartnerModal()" style="background: #28a745; color: white; padding: 12px 25px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(40,167,69,0.3);">
+                फ्री पार्टनर अकाउंट बनाएं <i class="fas fa-user-tie"></i>
+            </button>
+        </div>
+        <div class="partner-bg">
+            <i class="fas fa-handshake" style="font-size: 120px; color: #28a745; opacity: 0.8;"></i>
         </div>
     </section>
 
@@ -255,7 +285,7 @@
             </div>
             <div class="footer-col" style="flex: 1;">
                 <h3>महत्वपूर्ण लिंक</h3>
-                <a href="registration.html">नया रजिस्ट्रेशन</a>
+                <a href="register.html">नया रजिस्ट्रेशन</a>
                 <a href="login.html">परीक्षा पोर्टल लॉगिन</a>
                 <a href="demo.html">फ्री डेमो टेस्ट</a>
             </div>
@@ -274,11 +304,65 @@
     <a href="demo.html" class="floating-demo">
         <div class="demo-icon"><i class="fas fa-laptop-code"></i></div>
         <div class="demo-text">
-            <span>मुफ़्त में आज़माएं</span>
+            <span>मुफ़्त में आज़माएं</span>
             <b>फ्री डेमो टेस्ट</b>
         </div>
     </a>
 
-</body>
+    <div class="modal-overlay" id="partnerModal">
+        <div class="modal-box" style="border-top: 5px solid #28a745;">
+            <span class="close-btn" onclick="closePartnerModal()">&times;</span>
+            <h2 style="color: #28a745; margin-bottom: 20px; text-align: center;"><i class="fas fa-handshake"></i> पार्टनर रजिस्ट्रेशन</h2>
+            
+            <div class="form-group"><label>पूरा नाम / दुकान का नाम</label><input type="text" id="pName" placeholder="अपना या CSC सेंटर का नाम"></div>
+            <div class="form-group"><label>मोबाइल नंबर</label><input type="number" id="pMobile" placeholder="मोबाइल नंबर"></div>
+            <div class="form-group"><label>पार्टनर कोड बनाएं (उदा: GYAN01)</label><input type="text" id="pId" placeholder="4-8 अक्षरों का कोड" maxlength="10" style="text-transform: uppercase; font-weight: bold; color: #1a73e8;"></div>
+            <div class="form-group"><label>पासवर्ड बनाएं</label><input type="password" id="pPass" placeholder="पासवर्ड दर्ज करें"></div>
+            <div class="form-group"><label>बैंक डिटेल्स / UPI ID</label><input type="text" id="pBank" placeholder="यहाँ अपनी UPI ID या बैंक A/c लिखें"></div>
+            
+            <button id="pBtn" onclick="registerPartner()" style="width: 100%; padding: 14px; background: #28a745; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px;">अकाउंट बनाएं <i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
 
+    <script>
+        // 👇 अपना असली Google Script URL यहाँ डालें 👇
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxuUL6GRkOTyB6s6a4c5aYf-qybA8plvMXIismC-5Du0onqFbPXLb3__qJjwrvN-sM_GQ/exec";
+
+        function openPartnerModal() { document.getElementById('partnerModal').style.display = 'flex'; }
+        function closePartnerModal() { document.getElementById('partnerModal').style.display = 'none'; }
+
+        function registerPartner() {
+            let name = document.getElementById('pName').value.trim();
+            let mobile = document.getElementById('pMobile').value.trim();
+            let agentId = document.getElementById('pId').value.trim().toUpperCase();
+            let password = document.getElementById('pPass').value.trim();
+            let bank = document.getElementById('pBank').value.trim();
+
+            if(!name || !mobile || !agentId || !password || !bank) {
+                alert("कृपया फॉर्म की सभी जानकारी भरें!"); return;
+            }
+            if(agentId.length < 4) {
+                alert("पार्टनर कोड कम से कम 4 अक्षरों का होना चाहिए!"); return;
+            }
+
+            let btn = document.getElementById('pBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> प्रोसेसिंग...';
+            btn.disabled = true;
+
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "registerAgent", name: name, mobile: mobile, agentId: agentId, password: password, bankDetails: bank })
+            }).then(res => res.json()).then(data => {
+                if(data.status === "success") {
+                    alert("बधाई हो! आपका पार्टनर अकाउंट सफलता पूर्वक बन गया है।\n\nअब आप अपने 'पार्टनर कोड' और 'पासवर्ड' से लॉगिन कर सकते हैं।");
+                    closePartnerModal();
+                } else { alert("एरर: " + data.message); }
+                btn.innerHTML = 'अकाउंट बनाएं <i class="fas fa-paper-plane"></i>'; btn.disabled = false;
+            }).catch(e => {
+                alert("नेटवर्क एरर! कृपया इंटरनेट चेक करें।");
+                btn.innerHTML = 'अकाउंट बनाएं <i class="fas fa-paper-plane"></i>'; btn.disabled = false;
+            });
+        }
+    </script>
+</body>
 </html>
