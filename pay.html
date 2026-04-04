@@ -14,38 +14,46 @@
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid #1a73e8; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 10px auto; display: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        .utr-section { margin-top: 25px; background: #e8f0fe; padding: 20px; border-radius: 8px; border-left: 4px solid #1a73e8; text-align: left; }
-        .utr-section input { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; text-transform: uppercase; }
-        .btn-submit { background: #28a745; margin-top: 10px; font-size: 16px;}
+        .utr-section { margin-top: 20px; background: #e8f0fe; padding: 25px 20px; border-radius: 8px; border-top: 4px solid #28a745; text-align: left; display: none; /* शुरुआत में छुपा रहेगा */ }
+        .utr-section input { width: 100%; padding: 15px; margin-top: 10px; border: 2px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
+        .utr-section input:focus { border-color: #28a745; outline: none; }
+        .btn-submit { background: #28a745; margin-top: 15px; font-size: 16px;}
         .btn-submit:hover { background: #218838; }
+        .fade-in { animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
     <div class="box">
         <h2 style="color: #1a73e8; margin-top: 0;">ज्ञान कम्प्यूटर अकादमी</h2>
-        <p style="color: #555; font-size: 15px;">अपना पेमेंट पूरा करने के लिए भुगतान करें</p>
+        <p id="mainText" style="color: #555; font-size: 15px; font-weight: bold;">अपना पेमेंट पूरा करने के लिए भुगतान करें</p>
         <h1 id="amountDisplay" style="color: #28a745; font-size: 40px; margin: 10px 0;">₹0</h1>
         
         <div id="loader" class="loader"></div>
 
-        <a id="payBtn" href="#" class="btn"><i class="fas fa-mobile-alt"></i> PhonePe/GPay से पेमेंट करें</a>
-        
-        <div class="qr-box">
-            <p style="font-size: 13px; color: #666; font-weight: bold; margin-top: 0;">या यह QR कोड स्कैन करें:</p>
-            <img id="qrImage" src="" alt="UPI QR" style="width: 150px; height: 150px; border-radius: 10px; margin-top: 10px;">
-            <p style="margin-top: 5px; font-family: monospace; font-size: 14px;" id="upiIdDisplay"></p>
+        <div id="paymentSection">
+            <a id="payBtn" href="#" class="btn" onclick="showUtrStep()"><i class="fas fa-mobile-alt"></i> PhonePe/GPay से पेमेंट करें</a>
+            
+            <div class="qr-box">
+                <p style="font-size: 13px; color: #666; font-weight: bold; margin-top: 0;">या यह QR कोड स्कैन करें:</p>
+                <img id="qrImage" src="" alt="UPI QR" style="width: 150px; height: 150px; border-radius: 10px; margin-top: 10px;">
+                <p style="margin-top: 5px; font-family: monospace; font-size: 14px;" id="upiIdDisplay"></p>
+                <button onclick="showUtrStep()" style="background:none; border:none; color:#1a73e8; text-decoration:underline; cursor:pointer; font-weight:bold; margin-top:10px;">स्कैन करके पेमेंट कर दिया? यहाँ क्लिक करें</button>
+            </div>
         </div>
         
-        <div class="utr-section" id="utrBox">
-            <h4 style="margin: 0; color: #333;"><i class="fas fa-check-circle" style="color:#28a745;"></i> पेमेंट कर दिया?</h4>
-            <p style="font-size: 13px; color: #555; margin: 5px 0;">पेमेंट करने के बाद PhonePe/GPay से 12 अंकों का UTR/Ref नंबर यहाँ दर्ज करें:</p>
+        <div class="utr-section fade-in" id="utrBox">
+            <h3 style="margin: 0; color: #28a745; text-align: center;"><i class="fas fa-check-circle"></i> स्टेप 2: UTR वेरीफाई करें</h3>
+            <p style="font-size: 14px; color: #555; margin: 15px 0 5px 0; text-align: center;">PhonePe/GPay ऐप में जाकर 12 अंकों का UTR या Reference नंबर यहाँ दर्ज करें:</p>
             <input type="text" id="utrInput" placeholder="उदा: 312345678901" maxlength="12">
-            <button class="btn btn-submit" id="submitBtn" onclick="submitUtr()">वेरीफाई के लिए भेजें</button>
+            <button class="btn btn-submit" id="submitBtn" onclick="submitUtr()">वेरीफाई के लिए भेजें <i class="fas fa-paper-plane"></i></button>
+            <p style="font-size: 11px; color: #dc3545; text-align: center; margin-top: 10px;">कृपया गलत नंबर न डालें, अन्यथा अकाउंट एक्टिवेट नहीं होगा।</p>
         </div>
         
-        <div id="successMsg" style="display:none; margin-top:20px; color:#28a745; font-weight:bold; font-size:16px;">
-            <i class="fas fa-check-circle" style="font-size:30px; display:block; margin-bottom:10px;"></i>
-            आपका UTR नंबर एडमिन को भेज दिया गया है। 5-10 मिनट में आपका आईडी चालू हो जाएगा।
+        <div id="successMsg" style="display:none; margin-top:20px; color:#28a745; font-weight:bold; font-size:16px;" class="fade-in">
+            <i class="fas fa-check-circle" style="font-size:40px; display:block; margin-bottom:15px;"></i>
+            आपका पेमेंट UTR वेरीफाई होने के लिए एडमिन को भेज दिया गया है।<br><br>
+            <span style="color:#555; font-size:14px; font-weight:normal;">कृपया 5-10 मिनट प्रतीक्षा करें, चालू होते ही आपको ईमेल प्राप्त होगा।</span>
         </div>
     </div>
 
@@ -57,7 +65,7 @@
         const pa = urlParams.get('pa') || '8878038225@ybl';
         const pn = urlParams.get('pn') || 'Gyan Computer';
         const am = urlParams.get('am') || '0';
-        const userId = urlParams.get('user') || ''; // यूज़र की आईडी मिलेगी
+        const userId = urlParams.get('user') || ''; 
 
         document.getElementById('amountDisplay').innerText = '₹' + am;
         document.getElementById('upiIdDisplay').innerText = 'UPI ID: ' + pa;
@@ -66,16 +74,32 @@
         document.getElementById('payBtn').href = upiString;
         document.getElementById('qrImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(upiString)}`;
 
-        if(/Android|iPhone|iPad/i.test(navigator.userAgent)) {
+        let autoRedirectDone = false;
+
+        // 👉 स्मार्ट UI फंक्शन: पेमेंट के बाद पेज बदलना
+        function showUtrStep() {
+            document.getElementById('paymentSection').style.display = 'none'; // पेमेंट बटन और QR गायब
+            document.getElementById('loader').style.display = 'none'; 
+            document.getElementById('utrBox').style.display = 'block'; // UTR बॉक्स सामने
+            document.getElementById('mainText').innerHTML = "वापस स्वागत है! अपना UTR नंबर डालें 👇";
+            document.getElementById('mainText').style.color = "#28a745";
+        }
+
+        // मोबाइल में ऑटोमैटिक UPI ऐप खोलना और पेज बदलना
+        if(/Android|iPhone|iPad/i.test(navigator.userAgent) && !autoRedirectDone) {
             document.getElementById('loader').style.display = 'block';
-            setTimeout(() => { window.location.href = upiString; }, 1500);
+            setTimeout(() => { 
+                autoRedirectDone = true;
+                window.location.href = upiString; // UPI ऐप खोलेगा
+                setTimeout(showUtrStep, 1000); // 1 सेकंड बाद बैकग्राउंड में पेज बदल देगा
+            }, 1500);
         }
 
         // UTR भेजने का फंक्शन
         function submitUtr() {
             const utr = document.getElementById("utrInput").value.trim();
-            if(utr.length < 10) { alert("कृपया सही UTR / Reference नंबर डालें!"); return; }
-            if(!userId) { alert("यूज़र आईडी नहीं मिली! कृपया लिंक दोबारा खोलें।"); return; }
+            if(utr.length < 10) { alert("कृपया सही UTR / Reference नंबर (कम से कम 10-12 अंक) डालें!"); return; }
+            if(!userId) { alert("यूज़र आईडी नहीं मिली! कृपया ईमेल वाले लिंक से ही खोलें।"); return; }
 
             const btn = document.getElementById("submitBtn");
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> भेज रहे हैं...';
@@ -87,10 +111,12 @@
             }).then(res => res.json()).then(data => {
                 if(data.status === "success") {
                     document.getElementById("utrBox").style.display = "none";
+                    document.getElementById("mainText").style.display = "none";
+                    document.getElementById("amountDisplay").style.display = "none";
                     document.getElementById("successMsg").style.display = "block";
                 } else {
                     alert("एरर: " + data.message);
-                    btn.innerHTML = 'वेरीफाई के लिए भेजें'; btn.disabled = false;
+                    btn.innerHTML = 'वेरीफाई के लिए भेजें <i class="fas fa-paper-plane"></i>'; btn.disabled = false;
                 }
             }).catch(e => { alert("नेटवर्क एरर!"); btn.innerHTML = 'वेरीफाई के लिए भेजें'; btn.disabled = false; });
         }
