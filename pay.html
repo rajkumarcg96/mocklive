@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>सिक्योर पेमेंट - ज्ञान कम्प्यूटर</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; padding: 50px 20px; background: #f0f2f5; margin: 0; }
+        .box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); max-width: 400px; margin: auto; border-top: 5px solid #1a73e8; }
+        .btn { display: block; background: #1a73e8; color: white; padding: 15px; text-decoration: none; border-radius: 8px; font-size: 18px; font-weight: bold; margin-top: 20px; box-shadow: 0 4px 6px rgba(26,115,232,0.3); transition: 0.3s; }
+        .btn:hover { background: #1557b0; }
+        .qr-box { margin-top: 25px; padding: 15px; border: 2px dashed #e0e0e0; border-radius: 8px; background: #fafafa; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #1a73e8; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 10px auto; display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2 style="color: #1a73e8; margin-top: 0;">ज्ञान कम्प्यूटर अकादमी</h2>
+        <p style="color: #555; font-size: 15px;">आपका पेमेंट प्रोसेस हो रहा है...</p>
+        <h1 id="amountDisplay" style="color: #28a745; font-size: 40px; margin: 10px 0;">₹0</h1>
+        
+        <div id="loader" class="loader"></div>
+
+        <a id="payBtn" href="#" class="btn">📱 PhonePe/GPay से पेमेंट करें</a>
+        
+        <div class="qr-box">
+            <p style="font-size: 13px; color: #666; font-weight: bold; margin-top: 0;">अगर बटन काम न करे, तो यह QR स्कैन करें:</p>
+            <img id="qrImage" src="" alt="UPI QR" style="width: 150px; height: 150px; border-radius: 10px;">
+        </div>
+        <p style="font-size: 12px; color: #888; margin-top: 15px;">पेमेंट के बाद एडमिन आपका अकाउंट 5-10 मिनट में एक्टिवेट कर देंगे।</p>
+    </div>
+
+    <script>
+        // URL से जानकारी खींचना
+        const urlParams = new URLSearchParams(window.location.search);
+        const pa = urlParams.get('pa') || '8878038225@ybl';
+        const pn = urlParams.get('pn') || 'Gyan Computer';
+        const am = urlParams.get('am') || '0';
+        
+        document.getElementById('amountDisplay').innerText = '₹' + am;
+        
+        // UPI और QR लिंक बनाना
+        const upiString = `upi://pay?pa=${pa}&pn=${pn}&am=${am}&cu=INR`;
+        document.getElementById('payBtn').href = upiString;
+        document.getElementById('qrImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(upiString)}`;
+
+        // मोबाइल में ऑटोमैटिक UPI ऐप खोलने की कोशिश
+        if(/Android|iPhone|iPad/i.test(navigator.userAgent)) {
+            document.getElementById('loader').style.display = 'block';
+            setTimeout(() => {
+                window.location.href = upiString;
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
