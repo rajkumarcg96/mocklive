@@ -29,8 +29,12 @@
         th { background: #f8f9fa; color: #333; font-size: 14px; }
         .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; color: white; display: inline-block;}
         .bg-active { background: #28a745; } .bg-pending { background: #f0ad4e; } .bg-blocked { background: #dc3545; }
-        .bg-verify { background: #6f42c1; } /* UTR Verify Color */
+        .bg-verify { background: #6f42c1; } 
+        .badge-paid { background: #d4edda; color: #155724; }
+        .btn-action { background: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px;}
+        .action-select { padding: 5px; border-radius: 5px; border: 1px solid #ccc; cursor: pointer; outline: none; }
         #addStudentModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center; }
+        .loader { display: none; text-align: center; padding: 20px; color: #1a73e8; font-weight: bold; font-size: 18px; }
     </style>
 </head>
 <body>
@@ -46,7 +50,7 @@
     <div id="adminDashboard">
         <div class="header">
             <h2><i class="fas fa-cogs"></i> ज्ञान कम्प्यूटर - सुपर एडमिन</h2>
-            <button onclick="logoutAdmin()" style="background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">बाहर निकलें</button>
+            <button onclick="logoutAdmin()" style="background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight:bold;">बाहर निकलें</button>
         </div>
         <div class="container">
             <div class="stats">
@@ -56,18 +60,45 @@
                 <div class="stat-card" style="border-color:#f0ad4e;"><h3>कुल प्राप्त राशि</h3><h1 id="totalRevenue" style="color:#f0ad4e;">₹0</h1></div>
             </div>
 
-            <button onclick="openAddModal()" style="background:#1a73e8; color:white; border:none; padding:12px 25px; border-radius:8px; font-weight:bold; cursor:pointer; margin-bottom: 20px;">
-                <i class="fas fa-user-plus"></i> नया छात्र जोड़ें (Quick Reg)
-            </button>
+            <div style="margin-bottom: 20px;">
+                <button onclick="openAddModal()" style="background:#1a73e8; color:white; border:none; padding:12px 25px; border-radius:8px; font-weight:bold; cursor:pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <i class="fas fa-user-plus"></i> नया छात्र जोड़ें (Quick Reg)
+                </button>
+            </div>
 
             <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('tabStudents', this)">छात्र (Students)</button>
+                <button class="tab-btn active" onclick="switchTab('tabStudents', this)"><i class="fas fa-user-graduate"></i> छात्र (Students)</button>
+                <button class="tab-btn" onclick="switchTab('tabAgents', this)"><i class="fas fa-handshake"></i> एजेंट्स (Partners)</button>
+                <button class="tab-btn" onclick="switchTab('tabPayouts', this)">
+                    <i class="fas fa-wallet"></i> पेआउट रिक्वेस्ट 
+                    <span id="pendingBadge" style="background:#dc3545; color:white; padding:2px 8px; border-radius:10px; font-size:12px; margin-left:5px; display:none;">0</span>
+                </button>
             </div>
+
+            <div class="loader" id="loader"><i class="fas fa-spinner fa-spin"></i> डेटा लोड हो रहा है...</div>
 
             <div id="tabStudents" class="table-wrapper active">
                 <table id="studentsTable">
-                    <thead><tr><th>तारीख</th><th>नाम / मोबाइल</th><th>आईडी (User)</th><th>भुगतान / UTR</th><th>पैकेज</th><th>स्थिति</th><th>एक्शन</th></tr></thead>
+                    <thead><tr><th>तारीख</th><th>नाम / मोबाइल</th><th>आईडी (User)</th><th>भुगतान / UTR</th><th>एजेंट</th><th>पैकेज</th><th>स्थिति</th><th>एक्शन</th></tr></thead>
                     <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+
+            <div id="tabAgents" class="table-wrapper">
+                <table id="tableAgents">
+                    <thead>
+                        <tr><th>एजेंट का नाम</th><th>कोड</th><th>मोबाइल</th><th>बैंक डिटेल्स</th><th style="text-align:center;">कुल छात्र</th><th>कमाई</th><th>भुगतान किया</th><th>बैलेंस</th></tr>
+                    </thead>
+                    <tbody id="agentsBody"></tbody>
+                </table>
+            </div>
+
+            <div id="tabPayouts" class="table-wrapper">
+                <table id="tablePayouts">
+                    <thead>
+                        <tr><th>Req ID / Date</th><th>एजेंट (कोड)</th><th>बैंक डिटेल्स</th><th>राशि</th><th>स्टेटस</th><th>एक्शन</th></tr>
+                    </thead>
+                    <tbody id="payoutsBody"></tbody>
                 </table>
             </div>
         </div>
@@ -102,7 +133,13 @@
         const scriptURL = "https://script.google.com/macros/s/AKfycbxuUL6GRkOTyB6s6a4c5aYf-qybA8plvMXIismC-5Du0onqFbPXLb3__qJjwrvN-sM_GQ/exec"; 
         let savedPass = localStorage.getItem("adminLoginPass") || "";
 
-        window.onload = function() { if (savedPass) { document.getElementById("loginScreen").style.display = "none"; document.getElementById("adminDashboard").style.display = "block"; fetchData(); } };
+        window.onload = function() { 
+            if (savedPass) { 
+                document.getElementById("loginScreen").style.display = "none"; 
+                document.getElementById("adminDashboard").style.display = "block"; 
+                fetchData(); 
+            } 
+        };
 
         function loginAdmin() {
             let pass = document.getElementById("adminPass").value;
@@ -118,36 +155,52 @@
         }
 
         function fetchData() {
+            document.getElementById("loader").style.display = "block";
             fetch(scriptURL + "?action=getAdminData&adminPass=" + savedPass).then(res => res.json()).then(data => {
+                document.getElementById("loader").style.display = "none";
                 if(data.status === "error") { logoutAdmin(); return; }
+                
                 renderStudents(data.students || []);
+                renderAgents(data.agents || []);
+                renderPayouts(data.payouts || []);
+            }).catch(e => {
+                document.getElementById("loader").style.display = "none";
+                alert("डेटा लोड करने में त्रुटि!");
             });
         }
 
+        // ================= STUDENTS =================
         function renderStudents(students) {
             let active = 0, blocked = 0, totalRev = 0, html = "";
             document.getElementById("totalCount").innerText = students.length;
+            
             students.forEach(s => {
                 let statusClass = "bg-pending", approveBtn = "";
                 if(s.status === "Active") { statusClass = "bg-active"; active++; }
                 else if(s.status === "Blocked") { statusClass = "bg-blocked"; blocked++; }
                 else if(s.status === "Paid-Verify") { 
                     statusClass = "bg-verify"; 
-                    approveBtn = `<button onclick="approveUser('${s.username}', this)" style="background:#28a745; color:white; border:none; padding:5px 10px; border-radius:4px; width:100%; margin-bottom:5px; cursor:pointer;">✅ Approve</button>`;
+                    approveBtn = `<button onclick="approveUser('${s.username}', this)" style="background:#28a745; color:white; border:none; padding:5px 10px; border-radius:4px; width:100%; margin-bottom:5px; cursor:pointer; font-weight:bold;">✅ Approve</button>`;
                 }
+                
                 totalRev += parseInt(s.amount) || 0;
+                
                 html += `<tr>
-                    <td><small>Reg: ${s.regDate}</small></td>
+                    <td><small>Reg: ${s.regDate}</small><br><small style="color:#dc3545">Exp: ${s.expiryDate}</small></td>
                     <td><b>${s.name}</b><br><small>${s.mobile}</small></td>
                     <td><code>${s.username}</code></td>
-                    <td><b style="color:green;">₹${s.amount}</b><br><small style="color:#6f42c1; font-weight:bold;">${s.paymentId}</small></td>
-                    <td>${s.package}</td>
+                    <td><b style="color:green;">₹${s.amount}</b><br><small style="color:#6f42c1; font-weight:bold;">${s.paymentId || '-'}</small></td>
+                    <td><span style="background:#e8f0fe; padding:2px 5px; border-radius:4px; font-weight:bold;">${s.agentCode || '-'}</span></td>
+                    <td>${s.package}<br><b>Score: ${s.bestScore}</b></td>
                     <td><span class="status-badge ${statusClass}">${s.status}</span></td>
                     <td>
                         ${approveBtn}
-                        <button onclick="changeStatus(${s.rowId}, 'Active')" style="padding:4px; margin-bottom:4px; width:100%;">Active</button>
-                        <button onclick="changeStatus(${s.rowId}, 'Blocked')" style="padding:4px; margin-bottom:4px; width:100%;">Block</button>
-                        <button onclick="deleteUser(${s.rowId})" style="background:#dc3545; color:white; border:none; padding:4px; width:100%; border-radius:4px;"><i class="fas fa-trash"></i> Delete</button>
+                        <select class="action-select" onchange="changeStatus(${s.rowId}, this.value)" style="width:100%; margin-bottom:5px;">
+                            <option value="">-- Status --</option>
+                            <option value="Active">Active</option>
+                            <option value="Blocked">Block</option>
+                        </select>
+                        <button onclick="deleteUser(${s.rowId})" style="background:#dc3545; color:white; border:none; padding:4px; width:100%; border-radius:4px; cursor:pointer;"><i class="fas fa-trash"></i> Delete</button>
                     </td>
                 </tr>`;
             });
@@ -157,6 +210,73 @@
             document.getElementById("totalRevenue").innerText = "₹" + totalRev;
         }
 
+        // ================= AGENTS =================
+        function renderAgents(agents) {
+            let html = "";
+            agents.forEach(a => {
+                let bal = a.earned - a.paid;
+                html += `<tr>
+                    <td style="font-weight:bold;">${a.name}</td>
+                    <td style="font-family:monospace; color:#1a73e8; font-weight:bold; background:#e8f0fe; padding:2px 5px; border-radius:4px;">${a.code}</td>
+                    <td>${a.mobile}</td>
+                    <td style="font-size:12px; color:#555; max-width:200px;">${a.bank}</td>
+                    <td style="text-align:center; font-weight:bold; font-size:16px;">${a.students}</td>
+                    <td style="color:#28a745; font-weight:bold;">₹${a.earned}</td>
+                    <td style="color:#666;">₹${a.paid}</td>
+                    <td style="color:#d93025; font-weight:bold;">₹${bal}</td>
+                </tr>`;
+            });
+            document.getElementById("agentsBody").innerHTML = html || `<tr><td colspan="8" style="text-align:center; padding:20px;">कोई एजेंट नहीं है</td></tr>`;
+        }
+
+        // ================= PAYOUTS =================
+        function renderPayouts(payouts) {
+            let html = "";
+            let pendingCount = 0;
+            
+            payouts.forEach(p => {
+                if(p.status === "Pending") pendingCount++;
+                
+                let badge = p.status === "Pending" ? "bg-pending" : "badge-paid";
+                let actionBtn = p.status === "Pending" ? 
+                    `<button class="btn-action" onclick="approvePayout(${p.rowId}, '${p.agentCode}', ${p.amount}, this)"><i class="fas fa-paper-plane"></i> पैसे भेज दिए</button>` : 
+                    `<i class="fas fa-check-circle" style="color:#28a745; font-size:24px;"></i>`;
+
+                html += `<tr>
+                    <td><b>${p.reqId}</b><br><small>${p.date}</small></td>
+                    <td><b>${p.agentName}</b><br><span style="background:#eee; padding:2px 5px; border-radius:3px; font-size:12px;">${p.agentCode}</span></td>
+                    <td style="color:#1a73e8; font-weight:bold; font-size:13px; max-width:200px;">${p.bank}</td>
+                    <td style="color:#d93025; font-weight:bold; font-size:16px;">₹${p.amount}</td>
+                    <td><span class="status-badge ${badge}">${p.status}</span></td>
+                    <td>${actionBtn}</td>
+                </tr>`;
+            });
+
+            document.getElementById("payoutsBody").innerHTML = html || `<tr><td colspan="6" style="text-align:center; padding:20px;">कोई Payout Request नहीं है</td></tr>`;
+
+            let badgeEl = document.getElementById("pendingBadge");
+            if(pendingCount > 0) {
+                badgeEl.innerText = pendingCount;
+                badgeEl.style.display = "inline-block";
+            } else {
+                badgeEl.style.display = "none";
+            }
+        }
+
+        function approvePayout(rowId, agentCode, amount, btnElement) {
+            if(!confirm("क्या आपने सच में बैंक से एजेंट को ₹" + amount + " भेज दिए हैं?")) return;
+            btnElement.innerText = "Updating..."; btnElement.disabled = true;
+
+            fetch(scriptURL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "approvePayout", payoutRowId: rowId, agentCode: agentCode, amount: amount, adminPass: savedPass })
+            }).then(res => res.json()).then(data => {
+                if(data.status === "success") { alert("स्टेटस 'Paid' हो गया!"); fetchData(); } 
+                else { alert("एरर: " + data.message); btnElement.innerText = "पैसे भेज दिए"; btnElement.disabled = false; }
+            });
+        }
+
+        // ================= ACTIONS =================
         function approveUser(username, btn) {
             if(!confirm("UTR चेक कर लिया? Approve करते ही ID/Pass चला जाएगा!")) return;
             btn.innerText = "Processing..."; btn.disabled = true;
@@ -164,11 +284,12 @@
         }
 
         function changeStatus(rowId, newStatus) {
+            if(!newStatus) return;
             fetch(scriptURL, { method: "POST", body: JSON.stringify({ action: "updateStatus", adminPass: savedPass, rowId: rowId, newStatus: newStatus }) }).then(res => res.json()).then(data => { fetchData(); });
         }
 
         function deleteUser(rowId) {
-            if(!confirm("कैंडिडेट डिलीट करें?")) return;
+            if(!confirm("कैंडिडेट डिलीट करें? यह डेटा वापस नहीं मिलेगा!")) return;
             fetch(scriptURL, { method: "POST", body: JSON.stringify({ action: "deleteStudent", adminPass: savedPass, rowId: rowId }) }).then(res => res.json()).then(data => { fetchData(); });
         }
 
@@ -179,12 +300,13 @@
             let name = document.getElementById("addName").value, mobile = document.getElementById("addMobile").value, email = document.getElementById("addEmail").value;
             let pkg = document.getElementById("addPkg").value, payMode = document.getElementById("addPayMode").value;
             if(!name || !mobile || !email) return alert("Fill all fields");
-            document.getElementById("addBtn").innerText = "प्रोसेसिंग...";
+            document.getElementById("addBtn").innerText = "प्रोसेसिंग..."; document.getElementById("addBtn").disabled = true;
             fetch(scriptURL, { method: "POST", body: JSON.stringify({ action: "adminAddStudent", adminPass: savedPass, name: name, mobile: mobile, email: email, pkg: pkg, payMode: payMode }) })
             .then(res => res.json()).then(data => {
-                alert("सफल!"); closeAddModal(); fetchData(); document.getElementById("addBtn").innerText = "रजिस्ट्रेशन पूरा करें";
+                alert("सफल!"); closeAddModal(); fetchData(); document.getElementById("addBtn").innerText = "रजिस्ट्रेशन पूरा करें"; document.getElementById("addBtn").disabled = false;
             });
         }
+
         function logoutAdmin() { localStorage.removeItem("adminLoginPass"); location.reload(); }
     </script>
 </body>
