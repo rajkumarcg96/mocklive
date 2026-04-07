@@ -139,14 +139,14 @@
         <div class="renewal-banner" id="renewalAlert" style="display: none;">
             <div id="renewalText">
                 <i class="fas fa-exclamation-triangle"></i> 
-                <b>अलर्ट: आपका पैकेज 2 दिन में समाप्त हो जाएगा!</b>
+                <b>अलर्ट: आपका पैकेज जल्द ही समाप्त हो जाएगा!</b>
             </div>
             <button class="btn-renew-now" onclick="openRenewModal()">Renew Now</button>
         </div>
 
         <div class="page-title">
             <h1 id="welcomeTitle">कैंडिडेट डैशबोर्ड</h1>
-            <p>अपनी सुविधानुसार नीचे दिए गए विकल्पों में से चुनें। परीक्षा से पहले ट्रेनिंग मॉड्यूल का अभ्यास अवश्य करें。</p>
+            <p>अपनी सुविधानुसार नीचे दिए गए विकल्पों में से चुनें। परीक्षा से पहले ट्रेनिंग मॉड्यूल का अभ्यास अवश्य करें।</p>
         </div>
 
         <div class="actions-grid">
@@ -218,7 +218,8 @@
                     <li style="justify-content: center; color: #999;">डेटा लोड हो रहा है...</li>
                 </ul>
             </div>
-			<div class="stat-card" style="border-top: 5px solid #764ba2;">
+            
+            <div class="stat-card" style="border-top: 5px solid #764ba2;">
                 <h3><i class="fas fa-calendar-check" style="color: #764ba2;"></i> मुख्य परीक्षा की तारीख</h3>
                 
                 <div id="examDateInputArea">
@@ -247,7 +248,7 @@
         <div class="modal-box">
             <button class="close-modal" onclick="closeRenewModal()"><i class="fas fa-times"></i></button>
             <h2 style="color: var(--primary); margin-bottom: 10px;"><i class="fas fa-sync-alt"></i> अपना प्लान चुनें</h2>
-            <p style="color: var(--text-gray); font-size: 14px; margin-bottom: 20px;">अपनी पढ़ाई जारी रखने के लिए नीचे से नया पैकेज चुनें।</p>
+            <p style="color: var(--text-gray); font-size: 14px; margin-bottom: 20px;">अपनी पढ़ाई जारी रखने के लिए नीचे से नया पैकेज चुनें。</p>
             
             <div class="plan-option selected" id="planWeekly" onclick="selectPlan(99, 'Weekly (7 Days)')">
                 <h3>साप्ताहिक पैकेज (7 दिन)</h3>
@@ -298,34 +299,34 @@
             }
         };
 
-        // --- डेटा मंगाने का फंक्शन ---
+        // --- डेटा मंगाने का सही फंक्शन ---
         function fetchDashboardData(username) {
             fetch(scriptURL + "?action=getDashboardData&username=" + username)
             .then(res => res.json())
             .then(data => {
                 if(data.status === "success") {
                     
-                    document.getElementById("myAmount").innerText = data.myStats.amount || "₹0";
-                    document.getElementById("myExpiry").innerText = data.myStats.expiry || "-";
-                    document.getElementById("myAttempts").innerText = data.myStats.attempts || 0;
-                    document.getElementById("myLatestScore").innerText = data.myStats.latestScore || 0;
-                    document.getElementById("myBestScore").innerText = data.myStats.bestScore || 0;
-					// 👉 Exam Date UI Logic
-                    if (data.myStats.examDate && data.myStats.examDate !== "") {
+                    // 1. My Stats Update
+                    document.getElementById("myAmount").innerText = "₹" + (data.student.amount || 0);
+                    document.getElementById("myExpiry").innerText = data.student.expiry || "-";
+                    document.getElementById("myAttempts").innerText = data.student.totalTests || 0;
+                    document.getElementById("myLatestScore").innerText = data.student.lastScore || 0;
+                    document.getElementById("myBestScore").innerText = data.student.bestScore || 0;
+
+                    // 👉 Exam Date UI Logic
+                    if (data.student.examDate && data.student.examDate !== "") {
                         document.getElementById("examDateInputArea").style.display = "none";
                         document.getElementById("examDateDisplayArea").style.display = "block";
                         
-                        let eDate = new Date(data.myStats.examDate);
-                        eDate.setHours(0,0,0,0); // 👉 यह लाइन टाइमज़ोन की दिक्कत ठीक करेगी
+                        let eDate = new Date(data.student.examDate);
+                        eDate.setHours(0,0,0,0);
                         
                         let today = new Date();
                         today.setHours(0,0,0,0);
                         
-                        // तारीख को सुंदर फॉर्मेट में दिखाना
                         let options = { day: 'numeric', month: 'short', year: 'numeric' };
                         document.getElementById("displayDateText").innerText = eDate.toLocaleDateString('en-IN', options);
 
-                        // 👉 Math.ceil की जगह Math.round का इस्तेमाल
                         let diffDays = Math.round((eDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
                         
                         let cdText = "";
@@ -340,38 +341,45 @@
                         document.getElementById("examCountdown").innerText = cdText;
                     }
 
-                    // 👉 नया: रिन्यूअल अलर्ट लॉजिक
-                    let daysLeft = data.myStats.daysLeft; // यह बैकएंड से आ रहा है
-                    let alertBox = document.getElementById("renewalAlert");
-                    let alertText = document.getElementById("renewalText");
-                    let btnTrain = document.getElementById("btnTrain");
-                    let btnExam = document.getElementById("btnExam");
+                    // 👉 रिन्यूअल अलर्ट लॉजिक (expiry date से कैलकुलेट किया गया)
+                    if (data.student.expiry) {
+                        // Expiry format from backend is DD-MM-YYYY, convert to Date object
+                        let dateParts = data.student.expiry.split("-");
+                        if(dateParts.length === 3) {
+                            let expiryDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+                            let today = new Date();
+                            today.setHours(0,0,0,0);
+                            
+                            let daysLeft = Math.round((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                            
+                            let alertBox = document.getElementById("renewalAlert");
+                            let alertText = document.getElementById("renewalText");
+                            let btnTrain = document.getElementById("btnTrain");
+                            let btnExam = document.getElementById("btnExam");
 
-                    if (daysLeft <= 0) {
-                        // प्लान खत्म हो गया
-                        alertBox.style.display = "flex";
-                        alertText.innerHTML = "<i class='fas fa-exclamation-triangle'></i> <b>अलर्ट: आपका प्लान समाप्त हो चुका है! परीक्षा देने के लिए तुरंत रिन्यू करें।</b>";
-                        
-                        // ट्रेनिंग और एग्जाम बटन बंद (Disable) कर दें
-                        btnTrain.classList.add("btn-disabled");
-                        btnExam.classList.add("btn-disabled");
-                        btnTrain.href = "javascript:void(0)"; 
-                        btnExam.href = "javascript:void(0)";
-                    } 
-                    else if (daysLeft <= 2) {
-                        // 1 या 2 दिन बचे हैं
-                        alertBox.style.display = "flex";
-                        alertBox.style.background = "#f59e0b"; // Warning Orange color
-                        document.querySelector(".btn-renew-now").style.color = "#f59e0b";
-                        alertText.innerHTML = `<i class='fas fa-clock'></i> <b>चेतावनी: आपका प्लान ${daysLeft} दिन में समाप्त हो जाएगा!</b>`;
+                            if (daysLeft <= 0) {
+                                alertBox.style.display = "flex";
+                                alertText.innerHTML = "<i class='fas fa-exclamation-triangle'></i> <b>अलर्ट: आपका प्लान समाप्त हो चुका है! परीक्षा देने के लिए तुरंत रिन्यू करें।</b>";
+                                btnTrain.classList.add("btn-disabled");
+                                btnExam.classList.add("btn-disabled");
+                                btnTrain.href = "javascript:void(0)"; 
+                                btnExam.href = "javascript:void(0)";
+                            } 
+                            else if (daysLeft <= 2) {
+                                alertBox.style.display = "flex";
+                                alertBox.style.background = "#f59e0b"; // Warning Orange color
+                                document.querySelector(".btn-renew-now").style.color = "#f59e0b";
+                                alertText.innerHTML = `<i class='fas fa-clock'></i> <b>चेतावनी: आपका प्लान ${daysLeft} दिन में समाप्त हो जाएगा!</b>`;
+                            }
+                        }
                     }
 
                     // 3. लीडरबोर्ड अपडेट
                     let listHtml = "";
-                    if(data.leaderboard.length === 0) {
+                    if(!data.topScorers || data.topScorers.length === 0) {
                         listHtml = "<li style='justify-content: center; color: #999; font-size: 14px;'>अभी तक किसी ने टेस्ट नहीं दिया है।</li>";
                     } else {
-                        data.leaderboard.forEach((student, index) => {
+                        data.topScorers.forEach((student, index) => {
                             let rankClass = index === 0 ? "rank-1" : (index === 1 ? "rank-2" : (index === 2 ? "rank-3" : ""));
                             let medalIcon = "";
                             
@@ -491,7 +499,8 @@
                 window.location.replace("login.html");
             }
         }
-  // 👉 तारीख को बैकएंड में सेव करने का फंक्शन
+        
+        // 👉 तारीख को बैकएंड में सेव करने का फंक्शन
         function saveExamDate() {
             let selectedDate = document.getElementById("studentExamDate").value;
             let studentID = localStorage.getItem("studentID");
