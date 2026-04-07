@@ -189,12 +189,19 @@
             document.getElementById("languageScreen").style.display = "none";
             document.getElementById("loader").style.display = "flex";
 
-            // URL में &isDemo=true लगा है ताकि केवल 20 प्रश्न आएँ
+            // URL में &isDemo=true लगा है
             fetch(googleScriptURL + "?action=getQuestions&lang=" + selectedLang + "&isDemo=true&t=" + new Date().getTime())
             .then(res => res.json())
             .then(data => {
                 if(data.status === "success" && data.data.length > 0) {
-                    questions = data.data; // 20 questions
+                    // 👉 फिक्स: सारे सवालों को शफल (mix) करके सिर्फ 20 सवाल निकालें
+                    let allQuestions = data.data;
+                    for (let i = allQuestions.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [allQuestions[i], allQuestions[j]] = [allQuestions[j], allQuestions[i]];
+                    }
+                    questions = allQuestions.slice(0, 20); // सिर्फ 20 प्रश्न
+                    
                     qStatus = new Array(questions.length).fill(0); 
                     userAnswers = new Array(questions.length).fill(null); 
                     
