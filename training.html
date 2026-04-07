@@ -38,9 +38,14 @@
         .study-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .btn-test { background: #f0ad4e; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         
-        /* Audio Button */
+        /* Audio & AI Buttons */
         .btn-audio { background: #e8f0fe; color: #1a73e8; border: none; padding: 6px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.2s; white-space: nowrap;}
         .btn-audio:hover { background: #d2e3fc; transform: scale(1.05); }
+
+        .btn-ai { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); color: white; border: none; padding: 6px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 13px; box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3); transition: 0.3s; white-space: nowrap; margin-right: 10px;}
+        .btn-ai:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(139, 92, 246, 0.4); }
+        .btn-ai:disabled { opacity: 0.6; cursor: not-allowed; }
+        .ai-response-box { background: #f5f3ff; border: 1px dashed #8b5cf6; padding: 15px; border-radius: 8px; margin-top: 15px; color: #4c1d95; font-size: 14.5px; line-height: 1.6; display: none; position: relative;}
 
         /* Test Mode */
         .test-container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
@@ -67,13 +72,8 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         /* Dashboard Button */
-        .btn-dashboard {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            color: white; border: none; padding: 12px 25px; border-radius: 5px; font-weight: bold;
-            cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3); display: inline-flex; align-items: center; gap: 8px;
-        }
+        .btn-dashboard { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 25px; border-radius: 5px; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(118, 75, 162, 0.3); display: inline-flex; align-items: center; gap: 8px; }
         .btn-dashboard:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(118, 75, 162, 0.4); opacity: 0.9; }
-
     </style>
 </head>
 <body>
@@ -104,11 +104,9 @@
         <h2><i class="fas fa-book-reader"></i> आधार ट्रेनिंग मॉड्यूल</h2>
         <div>
             <span id="studentNameDisplay" style="margin-right: 15px; font-weight: bold;"></span>
-            
             <button onclick="window.onbeforeunload = null; window.location.href='dashboard.html';" class="btn-dashboard" id="homeBtn">
                 <i class="fas fa-home"></i> डैशबोर्ड पर जाएँ
             </button>
-
             <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> बाहर निकलें</button>
         </div>
     </div>
@@ -155,7 +153,6 @@
                 <h2 id="resTitle" style="margin-bottom: 15px;">टेस्ट समाप्त!</h2>
                 <div class="score-circle"><span id="resScore">0</span>/10</div>
                 <h3 id="resMessage" style="margin-bottom: 25px;"></h3>
-                
                 <button onclick="showScreen('screenChapters')" class="btn-nav" style="background: #1a73e8; padding: 12px 30px; font-size: 16px;"><i class="fas fa-list"></i> अध्यायों पर वापस जाएँ</button>
             </div>
         </div>
@@ -166,7 +163,7 @@
         const googleScriptURL = "https://script.google.com/macros/s/AKfycbxuUL6GRkOTyB6s6a4c5aYf-qybA8plvMXIismC-5Du0onqFbPXLb3__qJjwrvN-sM_GQ/exec";
         
         let allQuestions = [];
-        let currentStudyQuestions = []; // Study mode ke liye current questions
+        let currentStudyQuestions = []; 
         let currentChapterNum = 1;
         let testQuestions = [];
         let testAnswers = [];
@@ -282,6 +279,7 @@
 
             let html = "";
             let btnListenText = currentLang === "English" ? "Listen" : "सुनें";
+            let aiBtnText = currentLang === "English" ? "Ask AI" : "AI से समझें";
             
             currentStudyQuestions.forEach((q, index) => {
                 let correctOpt = q.options[q.answer];
@@ -291,9 +289,14 @@
                     <div class="qa-box">
                         <div class="study-q-header">
                             <h4>Q${index + 1}: <span id="studyQText_${index}">${q.question}</span></h4>
-                            <button onclick="speakStudyQuestion(${index})" class="btn-audio"><i class="fas fa-volume-up"></i> ${btnListenText}</button>
+                            <div style="display: flex;">
+                                <button onclick="askAITeacher(${index})" class="btn-ai" id="btnAI_${index}"><i class="fas fa-robot"></i> ${aiBtnText}</button>
+                                <button onclick="speakStudyQuestion(${index})" class="btn-audio"><i class="fas fa-volume-up"></i> ${btnListenText}</button>
+                            </div>
                         </div>
                         <p class="correct-ans"><i class="fas fa-check-circle"></i> ${ansText}: <span id="studyAnsText_${index}">${correctOpt}</span></p>
+                        
+                        <div id="aiResponse_${index}" class="ai-response-box"></div>
                     </div>
                 `;
             });
@@ -302,15 +305,60 @@
             showScreen("screenStudy");
         }
 
+        // 👉 AI Teacher Function
+        function askAITeacher(index) {
+            let qText = document.getElementById(`studyQText_${index}`).innerText;
+            let ansText = document.getElementById(`studyAnsText_${index}`).innerText;
+            let resBox = document.getElementById(`aiResponse_${index}`);
+            let btnAI = document.getElementById(`btnAI_${index}`);
+
+            if(resBox.style.display === "block" && !resBox.innerHTML.includes("fa-spinner")) {
+                resBox.style.display = "none"; return;
+            }
+
+            resBox.style.display = "block";
+            resBox.innerHTML = '<i class="fas fa-spinner fa-spin"></i> AI टीचर सोच रहा है...';
+            btnAI.disabled = true;
+
+            fetch(googleScriptURL, {
+                method: 'POST', redirect: 'follow',
+                body: JSON.stringify({ action: "askAI", question: qText, answer: ansText })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btnAI.disabled = false;
+                if(data.status === "success") {
+                    typeWriterEffect(resBox, data.explanation);
+                } else {
+                    resBox.innerHTML = "<span style='color:red;'><i class='fas fa-exclamation-triangle'></i> एरर: " + data.message + "</span>";
+                }
+            }).catch(e => {
+                btnAI.disabled = false;
+                resBox.innerHTML = "<span style='color:red;'><i class='fas fa-wifi'></i> इंटरनेट/सर्वर एरर!</span>";
+            });
+        }
+
+        // 👉 Typewriter Effect
+        function typeWriterEffect(element, text) {
+            element.innerHTML = "<b style='color:#6d28d9;'><i class='fas fa-robot'></i> AI Teacher:</b> <br><br>";
+            let i = 0; let speed = 25; 
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                }
+            }
+            type();
+        }
+
         // 👉 Audio Function For Study Mode
         function speakStudyQuestion(index) {
             window.speechSynthesis.cancel();
             let qText = document.getElementById(`studyQText_${index}`).innerText;
             let ansText = document.getElementById(`studyAnsText_${index}`).innerText;
             
-            let fullText = (currentLang === "English") ? 
-                           `Question: ${qText}. Correct Answer is: ${ansText}` : 
-                           `प्रश्न: ${qText}. इसका सही उत्तर है: ${ansText}`;
+            let fullText = (currentLang === "English") ? `Question: ${qText}. Correct Answer is: ${ansText}` : `प्रश्न: ${qText}. इसका सही उत्तर है: ${ansText}`;
                            
             let speech = new SpeechSynthesisUtterance();
             speech.text = fullText;
@@ -320,7 +368,7 @@
         }
 
         function startChapterTest() {
-            window.speechSynthesis.cancel(); // Stop audio if going to test
+            window.speechSynthesis.cancel(); 
             let chapQuestions = allQuestions.filter(q => q.chapter == currentChapterNum);
             let shuffled = chapQuestions.sort(() => 0.5 - Math.random());
             testQuestions = shuffled.slice(0, 10);
@@ -343,7 +391,7 @@
         }
 
         function loadTestQuestion() {
-            window.speechSynthesis.cancel(); // Stop previous audio when next question loads
+            window.speechSynthesis.cancel(); 
             document.getElementById("qNum").innerText = currentQIndex + 1;
             let q = testQuestions[currentQIndex];
             document.getElementById("testQuestion").innerText = q.question;
@@ -369,7 +417,6 @@
                 document.getElementById("btnSubmit").style.display = "none";
             }
             
-            // Auto update buttons text
             document.getElementById("btnPrev").innerHTML = currentLang === "English" ? '<i class="fas fa-chevron-left"></i> Prev' : '<i class="fas fa-chevron-left"></i> पिछला';
             document.getElementById("btnNext").innerHTML = currentLang === "English" ? 'Next <i class="fas fa-chevron-right"></i>' : 'अगला <i class="fas fa-chevron-right"></i>';
             document.getElementById("btnSubmit").innerHTML = currentLang === "English" ? '<i class="fas fa-paper-plane"></i> Submit' : '<i class="fas fa-paper-plane"></i> टेस्ट सबमिट करें';
@@ -410,7 +457,7 @@
 
         function submitTest() {
             clearInterval(timerInterval);
-            window.speechSynthesis.cancel(); // Stop audio on submit
+            window.speechSynthesis.cancel(); 
             
             let score = 0;
             testQuestions.forEach((q, i) => {
@@ -444,7 +491,7 @@
         }
 
         function showScreen(id) {
-            window.speechSynthesis.cancel(); // Stop audio when switching screens
+            window.speechSynthesis.cancel(); 
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
             document.getElementById(id).classList.add('active-screen');
         }
